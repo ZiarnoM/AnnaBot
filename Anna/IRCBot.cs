@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Linq;
 using System.Net.Mime;
+using System.Reflection;
 using System.Text.Json;
 using Anna;
 
@@ -16,9 +17,10 @@ namespace Anna
         public string nick { get; set; }
         public string id { get; set; }
         public string[] channels { get; set; }
+        public string[] commands { get; set; }
     }
     
-
+    
     public class IRCBot
     {
         private string server;
@@ -26,7 +28,9 @@ namespace Anna
         private string nick;
         private string id;
         private string[] channels;
-        
+        private string[] commands;
+        private DateTime time_last_conn;
+
         public void setup()
         {
             string fileName = "../../../config_irc.json";
@@ -37,11 +41,24 @@ namespace Anna
             nick = datamodel.nick;
             id = datamodel.id;
             channels = datamodel.channels;
+            commands = datamodel.commands;
+
         }
 
+        public TimeSpan showUpTime()
+        {
+            DateTime actual = DateTime.Now;
+            System.TimeSpan diff = actual.Subtract(time_last_conn);
+            Console.WriteLine(diff.Seconds);
+            return diff;
+        }
+        
+        
         public void run()
         {
+            // commands.ForEach(i => Console.Write("{0}\t", i));
             setup();
+            time_last_conn = DateTime.Now;
             using (var client = new TcpClient())
             {
                 Console.WriteLine($"Connecting to {server}");
@@ -79,7 +96,6 @@ namespace Anna
                                         foreach (string channel in channels)
                                         {
                                             writer.WriteLine($"JOIN {channel}");
-
                                             // communicate with everyone on the channel as soon as the bot logs in
                                             writer.WriteLine($"PRIVMSG {channel} :Hello, World!");
                                             writer.Flush();
@@ -97,9 +113,19 @@ namespace Anna
                                                 var sender = data.Split('!')[0].Substring(1);
                                                 var message = data.Split(':')[2];
                                                 Console.WriteLine($"Message: {message}");
-                                                // handle all your bot logic here
-                                                writer.WriteLine(
-                                                    $@"PRIVMSG {sender} :Hello, thank you for talking to me.");
+                                                if (d[3] == ":!help")
+                                                {
+                                                    foreach (string command in commands)
+                                                    {
+                                                        writer.WriteLine($@"PRIVMSG {sender} :{command}");
+                                                    }
+                                                    
+                                                }
+                                                if (d[3] == ":!uptime")
+                                                {
+                                                    writer.WriteLine($@"PRIVMSG {sender} :{showUpTime()}");
+                                                }
+
                                                 writer.Flush();
                                             }
 
@@ -109,9 +135,20 @@ namespace Anna
                                                 var sender = data.Split('!')[0].Substring(1);
                                                 var message = data.Split(':')[2];
                                                 Console.WriteLine($"Message: {message}");
-                                                // handle all your bot logic here
-                                                writer.WriteLine(
-                                                    $@"PRIVMSG {d[2]} :Hello, thank you for talking to me.");
+                                                Console.WriteLine(d[3]);
+                                                if (d[3] == ":!help")
+                                                {
+                                                    foreach (string command in commands)
+                                                    {
+                                                        writer.WriteLine($@"PRIVMSG {sender} :{command}");
+                                                    }
+                                                    
+                                                }
+                                                if (d[3] == ":!uptime")
+                                                {
+                                                    writer.WriteLine($@"PRIVMSG {d[2]} :{showUpTime()}");
+                                                }
+
                                                 writer.Flush();
                                             }
                                         }
