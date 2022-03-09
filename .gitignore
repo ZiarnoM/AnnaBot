@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 .idea
-config.json
+config_irc.json

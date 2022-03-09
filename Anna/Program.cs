@@ -6,7 +6,9 @@ namespace Anna
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+
+            IRCBot ircbot = new IRCBot();
+            ircbot.run();
         }
     }
 }
