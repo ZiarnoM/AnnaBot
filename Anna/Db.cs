@@ -1,24 +1,26 @@
-﻿using System;
-using System.Data.SqlClient;
-using System.IO;
-using System.Text.Json;
+﻿using System.Data.SqlClient;
 
 namespace Anna
 {
     public class Db
     {
-        private static string _conStr;
-        private static SqlConnection _con;
-        public static void Config()
+        private SqlConnection _con;
+        private ConfigModel _config;
+
+        public Db(ConfigModel configModel)
         {
-            const string fileName = "../../../DbConString.txt";
-            _conStr = File.ReadAllText(fileName);
-            _con = Connect(_conStr);
-            
+            _config = configModel;
         }
         public static SqlConnection Connect(string conStr)
         {
             SqlConnection c = new SqlConnection(conStr);
+            c.Open();
+            return c;
+        }
+
+        public SqlConnection Connect()
+        {
+            SqlConnection c = new SqlConnection(_config.connectionString);
             c.Open();
             return c;
         }
