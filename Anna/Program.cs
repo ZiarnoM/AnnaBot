@@ -6,7 +6,7 @@ namespace Anna
     {
         static void Main(string[] args)
         {
-
+            Db.Config();
             IRCBot ircbot = new IRCBot();
             ircbot.run();
         }
