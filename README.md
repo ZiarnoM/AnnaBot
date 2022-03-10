@@ -9,7 +9,14 @@ Create `config_irc.json` in main path.
   "gecos": "<gecos_field>",
   "nick": "<bot_visible_nickname>",
   "id": "<bot_identificator>",
-  "channels": ["#list", "#of", "#channels"]
+  "channels": ["#list", "#of", "#channels"],
+  "commands": [
+    "======================================",
+    "COMMANDS",
+    "!command and description",
+    "!command and description"
+    "======================================"
+  ]
 }
 
 ```
