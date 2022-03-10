@@ -8,7 +8,7 @@ namespace Anna
         {
             var config = ConfigModel.DeserializeData("../../../config.json");
             var db = new Db(config);
-            IRCBot ircbot = new IRCBot();
+            IRCBot ircbot = new IRCBot(config);
             ircbot.run();
         }
     }
