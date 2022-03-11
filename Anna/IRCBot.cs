@@ -1,26 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Linq;
-using System.Net.Mime;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 using Anna;
 
 namespace Anna
 {
-    public class Datamodel
-    {
-        public string server { get; set; }
-        public string gecos { get; set; }
-        public string nick { get; set; }
-        public string id { get; set; }
-        public string[] channels { get; set; }
-        public string[] commands { get; set; }
-    }
-
     public class Message
     {
         public string command { get; set; }
@@ -31,26 +16,13 @@ namespace Anna
 
 public class IRCBot
 {
-    private string server;
-    private string gecos;
-    private string nick;
-    private string id;
-    private string[] channels;
-    private string[] commands;
-    private DateTime time_last_conn;
-
-    public void setup()
+    private ConfigModel _config;
+    
+    public IRCBot(ConfigModel configModel)
     {
-        string fileName = "../../../config_irc.json";
-        string jsonString = File.ReadAllText(fileName);
-        Datamodel datamodel = JsonSerializer.Deserialize<Datamodel>(jsonString)!;
-        server = datamodel.server;
-        gecos = datamodel.gecos;
-        nick = datamodel.nick;
-        id = datamodel.id;
-        channels = datamodel.channels;
-        commands = datamodel.commands;
+        _config = configModel;
     }
+    
 
     public Message checkMessage(string message)
     {
@@ -58,7 +30,6 @@ public class IRCBot
         message = message[1..];
         string[] data = message.Split(' ');
         Message messageContent = new Message {command = data[0], parameters = data.Skip(1).ToArray()};
-
         return messageContent;
     }
     
@@ -66,22 +37,20 @@ public class IRCBot
 
     public void run()
     {
-        setup();
-        time_last_conn = DateTime.Now;
         using (var client = new TcpClient())
         {
-            Console.WriteLine($"Connecting to {server}");
-            client.Connect(server, 6667);
+            Console.WriteLine($"Connecting to {_config.server}");
+            client.Connect(_config.server, 6667);
             Console.WriteLine($"Connected: {client.Connected}");
 
             using (var stream = client.GetStream())
             using (var writer = new StreamWriter(stream))
             using (var reader = new StreamReader(stream))
             {
-                writer.WriteLine($"USER {id} * 8 {gecos}");
-                writer.WriteLine($"NICK {nick}");
+                writer.WriteLine($"USER {_config.id} * 8 {_config.gecos}");
+                writer.WriteLine($"NICK {_config.nick}");
                 // identify with the server so your bot can be an op on the channel
-                writer.WriteLine($"PRIVMSG NickServ :IDENTIFY {nick}");
+                writer.WriteLine($"PRIVMSG NickServ :IDENTIFY {_config.nick}");
                 writer.Flush();
 
                 while (client.Connected)
@@ -102,7 +71,7 @@ public class IRCBot
                                 case "422":
 
                                 {
-                                    foreach (string channel in channels)
+                                    foreach (string channel in _config.channels)
                                     {
                                         writer.WriteLine($"JOIN {channel}");
                                         // communicate with everyone on the channel as soon as the bot logs in
@@ -116,7 +85,7 @@ public class IRCBot
                                 {
                                     if (d.Length > 2)
                                     {
-                                        if (d[2] == nick)
+                                        if (d[2] == _config.nick)
                                         {
                                             // someone sent a private message to the bot
                                             var sender = data.Split('!')[0].Substring(1);
@@ -130,7 +99,7 @@ public class IRCBot
                                             writer.Flush();
                                         }
 
-                                        if (channels.Contains(d[2]))
+                                        if (_config.channels.Contains(d[2]))
                                         {
                                             // someone sent a private message to the bot
                                             var sender = data.Split('!')[0].Substring(1);
