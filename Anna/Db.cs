@@ -13,6 +13,7 @@ namespace Anna
         public Db(ConfigModel configModel)
         {
             _config = configModel;
+            Connect();
         }
 
         public static SqlConnection Connect(string conStr)
@@ -89,6 +90,11 @@ namespace Anna
         {
             object[] args = {name};
             return rowSQL(_con, "select * from Services WHERE Name=@p0", args);
+        }
+
+        public static DataRow ExecSql(string sqlCmd, object[] args)
+        {
+            return rowSQL(_con, sqlCmd, args);
         }
     }
 }
