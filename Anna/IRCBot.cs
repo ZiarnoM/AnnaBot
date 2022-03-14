@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Anna;
 
 namespace Anna
@@ -16,11 +15,11 @@ namespace Anna
 }
 
 
-public class IRCBot
+public class IrcBot
 {
     private ConfigModel _config;
 
-    public IRCBot(ConfigModel configModel)
+    public IrcBot(ConfigModel configModel)
     {
         _config = configModel;
     }
@@ -88,8 +87,11 @@ public class IRCBot
         return messageContent;
     }
 
-
-    public void run()
+    public void sendMessage(StreamWriter writer, string receiver, string message)
+    {
+        writer.WriteLine($"PRIVMSG {receiver} :{message}");
+    }
+    public void Run()
     {
         using (var client = new TcpClient())
         {
@@ -129,7 +131,7 @@ public class IRCBot
                                     {
                                         writer.WriteLine($"JOIN {channel}");
                                         // communicate with everyone on the channel as soon as the bot logs in
-                                        writer.WriteLine($"PRIVMSG {channel} :Hello, World!");
+                                        sendMessage(writer,channel,"Hello, World!");
                                         writer.Flush();
                                     }
 
@@ -157,6 +159,7 @@ public class IRCBot
                                         }
                                         
                                     }
+                                    
 
                                     break;
                                 }
