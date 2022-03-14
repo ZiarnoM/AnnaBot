@@ -28,7 +28,7 @@ public class IRCBot
 
     public Message checkMessage(string message)
     {
-        message = message[1..].Trim();
+        message = message[1..];
         Console.WriteLine("message: " + message);
         List<string> data = new List<string>();
         bool inargp = false;
@@ -38,7 +38,7 @@ public class IRCBot
         {
             if (inquotep)
             {
-                if (c == '"')
+                if (c == '\"')
                 {
                     data.Add(hold);
                     hold = "";
@@ -46,8 +46,9 @@ public class IRCBot
                 }
                 else
                 {
-                    hold += c;
+                    hold += c;   
                 }
+                
             }
             else if (inargp)
             {
@@ -66,7 +67,7 @@ public class IRCBot
             {
                 if (c != ' ')
                 {
-                    if (c == '"')
+                    if (c == '\"')
                     {
                         inquotep = true;
                     }
@@ -81,12 +82,9 @@ public class IRCBot
         if (hold.Length > 0)
         {
             data.Add(hold);
+            hold = "";
         }
         Message messageContent = new Message {command = data[0], parameters = data.Skip(1).ToArray()};
-        // foreach (string data in messageContent.parameters)
-        // {
-        //     
-        // }
         return messageContent;
     }
 
@@ -141,35 +139,23 @@ public class IRCBot
                                 {
                                     if (d.Length > 2)
                                     {
-                                        if (d[2] == _config.nick)
+                                        if ((d[2] == _config.nick) || (_config.channels.Contains(d[2])))
                                         {
-                                            // someone sent a private message to the bot
-                                            var sender = data.Split('!')[0].Substring(1);
-                                            var message = data.Split(':')[2];
+                                            //if someone send private message change destination to sender nick
+                                            if (d[2] == _config.nick)
+                                            {
+                                                d[2] = data.Split('!')[0].Substring(1);
+                                            }
+                                            var message = data.Split(':')[2].Trim();
                                             Console.WriteLine($"Message: {message}");
-                                            if (d[3][0] == ':')
+                                            if (message[0] == '!')
                                             {
                                                 checkMessage(message);
                                             }
 
                                             writer.Flush();
                                         }
-
-                                        if (_config.channels.Contains(d[2]))
-                                        {
-                                            // someone sent a private message to the bot
-                                            var sender = data.Split('!')[0].Substring(1);
-                                            var message = data.Split(':')[2];
-                                            Console.WriteLine($"Message: {message}");
-                                            ;
-                                            if (d[3][0] == ':')
-                                            {
-                                                checkMessage(message);
-                                            }
-
-
-                                            writer.Flush();
-                                        }
+                                        
                                     }
 
                                     break;
