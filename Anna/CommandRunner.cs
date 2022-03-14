@@ -2,19 +2,23 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.InteropServices;
+using TFunc =
+    System.Func<System.Collections.Generic.IDictionary<string, object>,
+        System.Collections.Generic.IDictionary<string, object>>;
 
 namespace Anna
 {
     public class CommandRunner
     {
-        public static Dictionary<string, Action<string, object[]>> Commands =
-            new Dictionary<string, Action<string, object[]>>()
+        public static Dictionary<string, Func<string, object[], string>> Commands =
+            new Dictionary<string, Func<string, object[], string>>()
             {
-                {"Print", PrintSql}
+                {"Print", (sql, args) => { return SqlResponseToString(sql, args); }}
             };
 
 
-        public static void DetectAndRunComamandFunction(Message msg)
+        public static string DetectAndRunComamandFunction(Message msg)
         {
             try
             {
@@ -28,21 +32,26 @@ namespace Anna
                 string sqlCmd = commandRow["Sql"].ToString();
 
 
-                Commands[action](sqlCmd, msg.parameters);
+                return Commands[action](sqlCmd, msg.parameters);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
+
+            return null;
         }
 
-        public static void PrintSql(string sql, object[] args)
+        public static string SqlResponseToString(string sql, object[] args)
         {
+            var resultStr = "";
             DataRow result = Db.ExecSql(sql, args);
             foreach (var row in result.ItemArray)
             {
-                Console.Write(row + " ");
+                resultStr += row + " ";
             }
+
+            return resultStr;
         }
     }
 }
