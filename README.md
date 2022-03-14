@@ -2,7 +2,7 @@
 Automation task bot
 
 ## Setup
-Create `config_irc.json` in main path.
+Create `config.json` in main path.
 ```json
 {
   "server": "<server_name>",
@@ -10,13 +10,7 @@ Create `config_irc.json` in main path.
   "nick": "<bot_visible_nickname>",
   "id": "<bot_identificator>",
   "channels": ["#list", "#of", "#channels"],
-  "commands": [
-    "======================================",
-    "COMMANDS",
-    "!command and description",
-    "!command and description"
-    "======================================"
-  ]
+  "connectionString": "<database connection string>"
 }
 
 ```
