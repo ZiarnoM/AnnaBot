@@ -86,7 +86,7 @@ namespace Anna
         }
         public static void SqlInsertLog(object[] args)
         {
-            string sql = "INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2)";
+            string sql = "IF EXISTS (SELECT * FROM LogChannel WHERE Channel=@p2) begin INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2) end";
             Db.ExecNonQuerySql(sql,args);
 
         }
