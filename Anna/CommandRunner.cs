@@ -14,10 +14,10 @@ namespace Anna
         public static Dictionary<string, Func<string, object[], string>> Commands =
             new Dictionary<string, Func<string, object[], string>>()
             {
-                {"Print", (sql, args) => { return SqlResponseToString(sql, args); }}
+                {"Print", (sql, args) => { return SqlResponseToString(sql, args); }},
+                {"Deploy", (sql, args) => { return Deploy(sql, args); }},
+                
             };
-
-
         public static string DetectAndRunComamandFunction(Message msg)
         {
             try
@@ -50,6 +50,25 @@ namespace Anna
             }
 
             return resultStr;
+        }
+
+        //TODO
+        public static string Deploy(string sql, object[] args)
+        {
+            try
+            {
+                DataRow result = Db.ExecSql(sql, args);
+                foreach (var row in result.ItemArray)
+                {
+                    Console.Write(row + " ");
+                }
+
+            } catch(Exception e)
+            {
+                Console.Write(e);
+            }
+
+            return "OK";
         }
     }
 }
