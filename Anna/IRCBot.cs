@@ -81,7 +81,6 @@ public class IrcBot
         if (hold.Length > 0)
         {
             data.Add(hold);
-            hold = "";
         }
         Message messageContent = new Message {command = data[0], parameters = data.Skip(1).ToArray()};
         return messageContent;
@@ -152,7 +151,7 @@ public class IrcBot
                                             Console.WriteLine($"Message: {message}");
                                             if (message[0] == '!')
                                             {
-                                                checkMessage(message);
+                                                sendMessage(writer,d[2],CommandRunner.DetectAndRunComamandFunction(checkMessage(message)));
                                             }
 
                                             writer.Flush();
