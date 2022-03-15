@@ -25,7 +25,7 @@ namespace Anna
                 DataRow commandRow = Db.FindCommand(msg.command, msg.parameters.Length);
                 if (commandRow == null)
                 {
-                    throw new Exception("AOW");
+                    return "Invalid command. See !help";
                 }
 
                 string action = commandRow["Action"].ToString();
@@ -36,10 +36,8 @@ namespace Anna
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                return "Invalid command. See !help";
             }
-
-            return null;
         }
 
         public static string SqlResponseToString(string sql, object[] args)
