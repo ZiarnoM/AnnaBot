@@ -43,10 +43,23 @@ namespace Anna
         public static string SqlResponseToString(string sql, object[] args)
         {
             var resultStr = "";
-            DataRow result = Db.ExecSql(sql, args);
-            foreach (var row in result.ItemArray)
+            DataRowCollection result = Db.ExecSqlCollection(sql, args);
+            if (result.Count == 1)
             {
-                resultStr += row + " ";
+                foreach (var cell in result[0].ItemArray)
+                {
+                    resultStr += cell + " ";
+                }
+
+                return resultStr;
+            }
+            foreach (DataRow row in result)
+            {
+                foreach (var cell in row.ItemArray)
+                {
+                    resultStr += cell + " ";
+                }
+                resultStr += ", ";
             }
 
             return resultStr;

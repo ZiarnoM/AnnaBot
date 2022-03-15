@@ -104,5 +104,10 @@ namespace Anna
         {
             return rowSQL(_con, sqlCmd, args);
         }
+
+        public static DataRowCollection ExecSqlCollection(string sqlCmd, object[] args)
+        {
+            return rowsSQL(_con, sqlCmd, args);
+        }
     }
 }
