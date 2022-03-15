@@ -66,6 +66,14 @@ namespace Anna
             DataSet ds = selectSQL(cmd);
             return Db.getRow(ds);
         }
+        
+        public static DataRowCollection rowsSQL(SqlConnection con, string sql, params object[] values)
+        {
+            SqlCommand cmd = commandSQL(con, sql, values);
+            DataSet ds = selectSQL(cmd);
+            return getRows(ds);
+        }
+
 
         public static DataRow getRow(DataSet ds)
         {
