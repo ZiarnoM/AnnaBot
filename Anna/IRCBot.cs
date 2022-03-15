@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 using System.Linq;
@@ -142,13 +143,23 @@ public class IrcBot
                                     {
                                         if ((d[2] == _config.nick) || (_config.channels.Contains(d[2])))
                                         {
-                                            //if someone send private message change destination to sender nick
-                                            if (d[2] == _config.nick)
-                                            {
-                                                d[2] = data.Split('!')[0].Substring(1);
-                                            }
+                                            var sender = data.Split('!')[0].Substring(1);
                                             var message = data.Split(':')[2].Trim();
                                             Console.WriteLine($"Message: {message}");
+                                            
+                                            //private message case
+                                            if (d[2] == _config.nick)
+                                            {
+                                                //change destination to sender nick
+                                                d[2] = sender;
+                                            }
+                                            //channel message
+                                            else
+                                            {
+                                                string[] args = new string[] {sender, message,d[2]};
+                                                CommandRunner.SqlInsertLog(args);
+                                            }
+
                                             if (message[0] == '!')
                                             {
                                                 sendMessage(writer,d[2],CommandRunner.DetectAndRunComamandFunction(checkMessage(message)));

@@ -39,9 +39,8 @@ namespace Anna
                 ds = new DataSet();
                 da.Fill(ds);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Console.Write(ex);
                 throw;
             }
 
@@ -66,14 +65,6 @@ namespace Anna
             DataSet ds = selectSQL(cmd);
             return Db.getRow(ds);
         }
-        
-        public static DataRowCollection rowsSQL(SqlConnection con, string sql, params object[] values)
-        {
-            SqlCommand cmd = commandSQL(con, sql, values);
-            DataSet ds = selectSQL(cmd);
-            return getRows(ds);
-        }
-
 
         public static DataRow getRow(DataSet ds)
         {
@@ -104,5 +95,13 @@ namespace Anna
         {
             return rowSQL(_con, sqlCmd, args);
         }
+        public static void ExecNonQuerySql(string sqlCmd, object[] args)
+        {
+            
+            SqlCommand command =  commandSQL(_con, sqlCmd, args);
+            int result = command.ExecuteNonQuery();
+            Console.WriteLine(result);
+        }
+        
     }
 }

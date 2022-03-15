@@ -15,6 +15,7 @@ namespace Anna
             new Dictionary<string, Func<string, object[], string>>()
             {
                 {"Print", (sql, args) => { return SqlResponseToString(sql, args); }},
+                {"Log", (sql, args) => { return SqlChangeLogChannel(sql, args); }},
                 {"Deploy", (sql, args) => { return Deploy(sql, args); }},
                 
             };
@@ -69,6 +70,17 @@ namespace Anna
             }
 
             return "OK";
+        }
+        public static void SqlInsertLog(object[] args)
+        {
+            string sql = "INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2)";
+            Db.ExecNonQuerySql(sql,args);
+
+        }
+        public static string SqlChangeLogChannel(string sql, object[] args)
+        {
+            Db.ExecNonQuerySql(sql,args);
+            return "大丈夫(daijoubu)";
         }
     }
 }
