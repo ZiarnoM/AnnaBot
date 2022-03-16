@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 using System.Linq;
+using System.Text;
 using Anna;
 
 namespace Anna
@@ -98,27 +99,40 @@ public class IrcBot
             Console.WriteLine($"Connecting to {_config.server}");
             client.Connect(_config.server, 6667);
             Console.WriteLine($"Connected: {client.Connected}");
+            Console.WriteLine("Polaczony z serwerem");
 
             using (var stream = client.GetStream())
             using (var writer = new StreamWriter(stream))
             using (var reader = new StreamReader(stream))
             {
-                writer.WriteLine($"USER {_config.id} * 8 {_config.gecos}");
+                writer.WriteLine($"USER {_config.id} {_config.id} {_config.id} :{_config.id}");
+                Console.WriteLine("Wysłany user");
                 writer.WriteLine($"NICK {_config.nick}");
+                Console.WriteLine("Wysłany nick");
                 // identify with the server so your bot can be an op on the channel
                 writer.WriteLine($"PRIVMSG NickServ :IDENTIFY {_config.nick}");
                 writer.Flush();
 
                 while (client.Connected)
                 {
+                    Console.WriteLine("Jestem polaczony");
                     var data = reader.ReadLine();
+                    Console.WriteLine("Czytam wiadomosc");
 
                     if (data != null)
                     {
                         var d = data.Split(' ');
                         Console.WriteLine($"Data: {data}");
-
-
+                        if(d[0] == "PING")
+                        {
+                            string message = data.Split(":")[1];
+                            Console.WriteLine(data);
+                            Console.WriteLine("Ping Pong---");
+                            writer.WriteLine("PONG "+message);
+                            Console.WriteLine("PONG "+message);
+                            writer.Flush();
+                        }
+                        
                         if (d.Length > 1)
                         {
                             switch (d[1])
