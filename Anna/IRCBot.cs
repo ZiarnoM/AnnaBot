@@ -153,7 +153,8 @@ public class IrcBot
                                         if ((d[2] == _config.nick) || (_config.channels.Contains(d[2])))
                                         {
                                             var sender = data.Split('!')[0].Substring(1);
-                                            var message = data.Split(':')[2].Trim();
+                                            string[] messageList = data.Split(':')[2..];
+                                            string message = String.Join(":", messageList).Trim();
                                             Console.WriteLine($"Message: {message}");
                                             
                                             //private message case
