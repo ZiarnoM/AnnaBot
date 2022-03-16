@@ -15,8 +15,10 @@ namespace Anna
             new Dictionary<string, Func<string, object[], string>>()
             {
                 {"Print", (sql, args) => { return SqlResponseToString(sql, args); }},
-                {"Log", (sql, args) => { return SqlChangeLogChannel(sql, args); }},
-                {"Deploy", (sql, args) => { return Deploy(sql, args); }},
+                {"Operation", (sql, args) => { return ExecSqlOperation(sql, args); }},
+                {"Deploy", (sql, args) => { return Deploy(sql, args); }}
+                
+                
                 
             };
         public static string DetectAndRunComamandFunction(Message msg)
@@ -26,7 +28,7 @@ namespace Anna
                 DataRow commandRow = Db.FindCommand(msg.command, msg.parameters.Length);
                 if (commandRow == null)
                 {
-                    return "Invalid command. See !help";
+                    return "Invalid command. See !help(null)";
                 }
 
                 string action = commandRow["Action"].ToString();
@@ -37,6 +39,7 @@ namespace Anna
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 return "Invalid command. See !help";
             }
         }
@@ -90,10 +93,25 @@ namespace Anna
             Db.ExecNonQuerySql(sql,args);
 
         }
-        public static string SqlChangeLogChannel(string sql, object[] args)
+        public static string ExecSqlOperation(string sql, object[] args)
         {
             Db.ExecNonQuerySql(sql,args);
-            return "大丈夫(daijoubu)";
+            return GetCodesValue("CHANGE-SUCCESS-MESSAGE");
+        }
+        public static string GetCodesValue(string name)
+        {
+            string[] args = {name};
+                string sql = "SELECT * FROM Codes where Name = @p0";
+                try
+                {
+                    DataRow row = Db.ExecSql(sql, args);
+                    return row.ItemArray[2].ToString();
+                }
+                catch(Exception e)
+                {
+                    return "OK";
+                }
+
         }
     }
 }

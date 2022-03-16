@@ -140,7 +140,7 @@ public class IrcBot
                                     {
                                         writer.WriteLine($"JOIN {channel}");
                                         // communicate with everyone on the channel as soon as the bot logs in
-                                        sendMessage(writer,channel,"I am here and listening your commands");
+                                        sendMessage(writer,channel,CommandRunner.GetCodesValue("WELCOME-MESSAGE"));
                                         writer.Flush();
                                     }
 
