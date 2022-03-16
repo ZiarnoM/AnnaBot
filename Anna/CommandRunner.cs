@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
-using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.IO;
 using TFunc =
     System.Func<System.Collections.Generic.IDictionary<string, object>,
         System.Collections.Generic.IDictionary<string, object>>;
@@ -75,14 +75,27 @@ namespace Anna
             try
             {
                 DataRow result = Db.ExecSql(sql, args);
-                foreach (var row in result.ItemArray)
+                Dictionary<string, string> Data = new Dictionary<string, string>()
                 {
-                    Console.Write(row + " ");
-                }
+                    {"Name", result.ItemArray[0].ToString()},
+                    {"Repository", result.ItemArray[1].ToString()},
+                    {"Branch", result.ItemArray[2].ToString()},
+                    {"Destination", result.ItemArray[3].ToString()},
+                };
+                string destinationFolderName = getDestinationFolderName(Data["Destination"]);
+
+                string[] cmdCommands = new string[]
+                {
+                    ("mkdir " + addQuotes(Data["Destination"])), // if destination doesn't exist
+                    ("cd " + addQuotes(Data["Destination"] + "../") ),
+                };
+
+                execCmdCommands(cmdCommands);
 
             } catch(Exception e)
             {
                 Console.Write(e);
+                return "Error";
             }
 
             return "OK";
@@ -112,6 +125,70 @@ namespace Anna
                     return "OK";
                 }
 
+        }
+
+        public static void execCmdCommands(string[] commands)
+        {
+            Process p = new Process();
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "cmd.exe";
+            info.RedirectStandardInput = true;
+            info.UseShellExecute = false;
+
+            p.StartInfo = info;
+            p.Start();
+
+            using (StreamWriter sw = p.StandardInput)
+            {
+                if (sw.BaseStream.CanWrite)
+                {
+                    foreach (var cmd in commands)
+                    {
+                        sw.WriteLine(cmd);
+                    }
+                }
+            }
+            
+        }
+        
+        public static string Reverse( string s )
+        {
+            char[] charArray = s.ToCharArray();
+            Array.Reverse( charArray );
+            return new string( charArray );
+        }
+        
+        /*
+         * Return folder name from whole path
+         *
+         * Example:
+         * C:\Users\Public\test -> Return: test
+         *
+         * If there is no backslash (\), returns path
+         * 
+         */
+        public static string getDestinationFolderName(string destination)
+        {
+            if (destination.IndexOf("/") < 0)
+            {
+                return destination;
+            }
+            
+            int indexFromEnd = Reverse(destination).IndexOf("/");
+            return destination.Substring(destination.Length - indexFromEnd);
+        }
+
+       /* Return string with qoutes
+        * Example: test -> "test"
+        *
+        * Useful while using strings containing path since:
+        * cd C:/Users/Username With Space/ won't work, but
+        * cd "C:/Users/Username With Space/" will
+        * 
+        */
+        public static string addQuotes(string str)
+        {
+            return "\"" + str + "\"";
         }
     }
 }
