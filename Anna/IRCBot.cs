@@ -90,6 +90,8 @@ public class IrcBot
 
     public void sendMessage(StreamWriter writer, string receiver, string message)
     {
+        string[] args = new string[] {_config.nick, message,receiver};
+        CommandRunner.SqlInsertLog(args);
         writer.WriteLine($"PRIVMSG {receiver} :{message}");
     }
     public void Run()
@@ -99,25 +101,20 @@ public class IrcBot
             Console.WriteLine($"Connecting to {_config.server}");
             client.Connect(_config.server, 6667);
             Console.WriteLine($"Connected: {client.Connected}");
-            Console.WriteLine("Polaczony z serwerem");
 
             using (var stream = client.GetStream())
             using (var writer = new StreamWriter(stream))
             using (var reader = new StreamReader(stream))
             {
                 writer.WriteLine($"USER {_config.id} {_config.id} {_config.id} :{_config.id}");
-                Console.WriteLine("Wysłany user");
                 writer.WriteLine($"NICK {_config.nick}");
-                Console.WriteLine("Wysłany nick");
                 // identify with the server so your bot can be an op on the channel
                 writer.WriteLine($"PRIVMSG NickServ :IDENTIFY {_config.nick}");
                 writer.Flush();
 
                 while (client.Connected)
                 {
-                    Console.WriteLine("Jestem polaczony");
                     var data = reader.ReadLine();
-                    Console.WriteLine("Czytam wiadomosc");
 
                     if (data != null)
                     {
@@ -127,9 +124,7 @@ public class IrcBot
                         {
                             string message = data.Split(":")[1];
                             Console.WriteLine(data);
-                            Console.WriteLine("Ping Pong---");
                             writer.WriteLine("PONG "+message);
-                            Console.WriteLine("PONG "+message);
                             writer.Flush();
                         }
                         
@@ -145,7 +140,7 @@ public class IrcBot
                                     {
                                         writer.WriteLine($"JOIN {channel}");
                                         // communicate with everyone on the channel as soon as the bot logs in
-                                        sendMessage(writer,channel,"Hello, World!");
+                                        sendMessage(writer,channel,"I am here and listening your commands");
                                         writer.Flush();
                                     }
 
