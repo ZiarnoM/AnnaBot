@@ -17,8 +17,9 @@ namespace Anna
                 {"Print", (sql, args) => { return SqlResponseToString(sql, args); }},
                 {"Operation", (sql, args) => { return ExecSqlOperation(sql, args); }},
                 {"Deploy", (sql, args) => { return Deploy(sql, args); }}
-                
+
             };
+
         public static string DetectAndRunComamandFunction(Message msg)
         {
             try
@@ -55,12 +56,14 @@ namespace Anna
 
                 return resultStr;
             }
+
             foreach (DataRow row in result)
             {
                 foreach (var cell in row.ItemArray)
                 {
                     resultStr += cell + " ";
                 }
+
                 resultStr += ", ";
             }
 
@@ -79,18 +82,33 @@ namespace Anna
                     {"Repository", result.ItemArray[1].ToString()},
                     {"Branch", result.ItemArray[2].ToString()},
                     {"Destination", result.ItemArray[3].ToString()},
+                    {"PublishConfiguration", result.ItemArray[4].ToString()},
                 };
+
+                string publishFolderName = getPublishFolderName(Data["PublishConfiguration"]);
                 string destinationFolderName = getDestinationFolderName(Data["Destination"]);
 
-                string[] cmdCommands = new string[]
+                string[] cmdCommands =
                 {
-                    ("mkdir " + addQuotes(Data["Destination"])), // if destination doesn't exist
-                    ("cd " + addQuotes(Data["Destination"] + "../") ),
+                    $"cd {addQuotes(Data["Destination"] + "/../")}",
+                    $"rmdir /s {addQuotes(Data["Destination"] + "_backup")}",
+                    "Y", // accept changes from rmdir (cmd prompt Y/N),
+                    $"XCopy /E /I {addQuotes(Data["Destination"])} {destinationFolderName}_backup",
+                    $"mkdir {addQuotes(Data["Destination"])}", // if doesn't exist
+                    $"cd {addQuotes(Data["Destination"])}",
+                    $"git pull origin {Data["Branch"]}",
+                    $"git clone {addQuotes(Data["Repository"])} .",
+                    $"git checkout {Data["Branch"]}",
+                    $"cd {Data["Name"]}",
+                    "dotnet test",
+                    $"dotnet publish {Data["PublishConfiguration"]}",
+                    $"cd {publishFolderName}",
+                    $"{Data["Name"]}.exe"
                 };
 
                 execCmdCommands(cmdCommands);
-
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.Write(e);
                 return "Error";
@@ -98,37 +116,40 @@ namespace Anna
 
             return "OK";
         }
+
         public static void SqlInsertLog(object[] args)
         {
-            string sql = "IF EXISTS (SELECT * FROM LogChannel WHERE Channel=@p2) begin INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2) end";
-            Db.ExecNonQuerySql(sql,args);
-
+            string sql =
+                "IF EXISTS (SELECT * FROM LogChannel WHERE Channel=@p2) begin INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2) end";
+            Db.ExecNonQuerySql(sql, args);
         }
+
         public static void SqlInsertSystemLog(object[] args)
         {
             string sql = "INSERT INTO SystemLog (UserNick,Message,Event) VALUES(@p0,@p1,@p2)";
             Db.ExecNonQuerySql(sql,args);
 
         }
+
         public static string ExecSqlOperation(string sql, object[] args)
         {
-            Db.ExecNonQuerySql(sql,args);
+            Db.ExecNonQuerySql(sql, args);
             return GetCodesValue("CHANGE-SUCCESS-MESSAGE");
         }
+
         public static string GetCodesValue(string name)
         {
             string[] args = {name};
-                string sql = "SELECT * FROM Codes where Name = @p0";
-                try
-                {
-                    DataRow row = Db.ExecSql(sql, args);
-                    return row.ItemArray[2].ToString();
-                }
-                catch(Exception e)
-                {
-                    return "OK";
-                }
-
+            string sql = "SELECT * FROM Codes where Name = @p0";
+            try
+            {
+                DataRow row = Db.ExecSql(sql, args);
+                return row.ItemArray[2].ToString();
+            }
+            catch (Exception e)
+            {
+                return "OK";
+            }
         }
 
         public static void execCmdCommands(string[] commands)
@@ -137,7 +158,9 @@ namespace Anna
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "cmd.exe";
             info.RedirectStandardInput = true;
+            // info.RedirectStandardOutput = true;
             info.UseShellExecute = false;
+            // info.RedirectStandardError = true;
 
             p.StartInfo = info;
             p.Start();
@@ -152,16 +175,25 @@ namespace Anna
                     }
                 }
             }
-            
+
+            // string stdout_str = p.StandardOutput.ReadToEnd();
+            // string stderr_str = p.StandardError.ReadToEnd();
+            // Console.WriteLine("--------------");
+            // Console.WriteLine(stdout_str);
+            // Console.WriteLine("--------------");
+            // Console.WriteLine(stderr_str);
+            // Console.WriteLine("--------------");
+
+            p.WaitForExit();
         }
-        
-        public static string Reverse( string s )
+
+        public static string Reverse(string s)
         {
             char[] charArray = s.ToCharArray();
-            Array.Reverse( charArray );
-            return new string( charArray );
+            Array.Reverse(charArray);
+            return new string(charArray);
         }
-        
+
         /*
          * Return folder name from whole path
          *
@@ -177,22 +209,54 @@ namespace Anna
             {
                 return destination;
             }
-            
+
             int indexFromEnd = Reverse(destination).IndexOf("/");
             return destination.Substring(destination.Length - indexFromEnd);
         }
 
-       /* Return string with qoutes
-        * Example: test -> "test"
-        *
-        * Useful while using strings containing path since:
-        * cd C:/Users/Username With Space/ won't work, but
-        * cd "C:/Users/Username With Space/" will
-        * 
-        */
+        /* Return string with qoutes
+         * Example: test -> "test"
+         *
+         * Useful while using strings containing path since:
+         * cd C:/Users/Username With Space/ won't work, but
+         * cd "C:/Users/Username With Space/" will
+         * 
+         */
         public static string addQuotes(string str)
         {
             return "\"" + str + "\"";
+        }
+
+        /* Return publish folder name extracted from publish configuration (flags)
+         *
+         * Example:
+         * pubConf: -o publishFolderName ... -> return publishFolderName
+         * 
+         */
+        public static string getPublishFolderName(string publishFlags)
+        {
+            if (!publishFlags.Contains("-o ") && !publishFlags.Contains("--output "))
+                return null;
+            string[] splitted = publishFlags.Split(' ');
+            int i = 0;
+            foreach (string elem in splitted)
+            {
+                if (elem == "-o" || elem == "--output")
+                {
+                    try
+                    {
+                        return splitted[i + 1];
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                }
+
+                i++;
+            }
+
+            return null;
         }
     }
 }
