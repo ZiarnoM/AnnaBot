@@ -13,6 +13,8 @@ namespace Anna
     {
         public string command { get; set; }
         public string[] parameters { get; set; }
+        
+        public Boolean isFlag { get; set; }
     }
 }
 
@@ -84,7 +86,17 @@ public class IrcBot
         {
             data.Add(hold);
         }
-        Message messageContent = new Message {command = data[0], parameters = data.Skip(1).ToArray()};
+
+        Boolean isFlag;
+        if (data.Count > 1)
+        {
+            isFlag = data[1].StartsWith("-");
+        }
+        else
+        {
+            isFlag = false;
+        }
+        Message messageContent = new Message {command = data[0], parameters = data.Skip(1).ToArray(),isFlag = isFlag };
         return messageContent;
     }
 
@@ -101,7 +113,11 @@ public class IrcBot
             Console.WriteLine($"Connecting to {_config.server}");
             client.Connect(_config.server, 6667);
             Console.WriteLine($"Connected: {client.Connected}");
-
+            
+            //log bot initiation
+            object[] upTimeArgs = {_config.nick, "!BOTSTARTED!", 0};
+            CommandRunner.SqlInsertSystemLog(upTimeArgs);
+            
             using (var stream = client.GetStream())
             using (var writer = new StreamWriter(stream))
             using (var reader = new StreamReader(stream))
