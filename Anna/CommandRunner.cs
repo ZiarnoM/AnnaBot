@@ -18,8 +18,6 @@ namespace Anna
                 {"Operation", (sql, args) => { return ExecSqlOperation(sql, args); }},
                 {"Deploy", (sql, args) => { return Deploy(sql, args); }}
                 
-                
-                
             };
         public static string DetectAndRunComamandFunction(Message msg)
         {
@@ -103,6 +101,12 @@ namespace Anna
         public static void SqlInsertLog(object[] args)
         {
             string sql = "IF EXISTS (SELECT * FROM LogChannel WHERE Channel=@p2) begin INSERT INTO Log (UserNick,Message,Channel) VALUES(@p0,@p1,@p2) end";
+            Db.ExecNonQuerySql(sql,args);
+
+        }
+        public static void SqlInsertSystemLog(object[] args)
+        {
+            string sql = "INSERT INTO SystemLog (UserNick,Message,Event) VALUES(@p0,@p1,@p2)";
             Db.ExecNonQuerySql(sql,args);
 
         }
