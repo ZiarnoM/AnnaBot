@@ -39,8 +39,9 @@ namespace Anna
                 ds = new DataSet();
                 da.Fill(ds);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
+                _ = ex;
                 throw;
             }
 
