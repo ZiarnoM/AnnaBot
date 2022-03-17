@@ -114,7 +114,7 @@ namespace Anna
                 return "Error";
             }
 
-            return "OK";
+            return GetCodesValue("CHANGE-SUCCESS-MESSAGE");
         }
 
         public static void SqlInsertLog(object[] args)
