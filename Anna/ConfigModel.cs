@@ -7,9 +7,6 @@ namespace Anna
     public class ConfigModel
     {
         public string server { get; set; }
-        
-        public string gecos { get; set; }
-        
         public string nick { get; set; }
         
         public string id { get; set; }

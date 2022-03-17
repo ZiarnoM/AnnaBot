@@ -112,5 +112,7 @@ namespace Anna
             SqlCommand command =  commandSQL(_con, sqlCmd, args);
             int result = command.ExecuteNonQuery();
         }
+        
+        
     }
 }
