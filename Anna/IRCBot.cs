@@ -12,8 +12,10 @@ namespace Anna
     public class Message
     {
         public string command { get; set; }
+        
         public string[] parameters { get; set; }
-
+        
+        public string sender { get; set; }
         public Boolean isFlag { get; set; }
     }
 
@@ -27,7 +29,7 @@ namespace Anna
         }
 
 
-        public Message checkMessage(string message)
+        public Message checkMessage(string sender, string message)
         {
             message = message[1..];
             Console.WriteLine("message: " + message);
@@ -94,7 +96,7 @@ namespace Anna
             {
                 isFlag = false;
             }
-            Message messageContent = new Message { command = data[0], parameters = data.Skip(1).ToArray(), isFlag = isFlag };
+            Message messageContent = new Message { command = data[0], parameters = data.Skip(1).ToArray(),sender = sender, isFlag = isFlag };
             return messageContent;
         }
 
@@ -186,7 +188,7 @@ namespace Anna
 
                                                     if (message[0] == '!')
                                                     {
-                                                        sendMessage(writer, d[2], CommandRunner.DetectAndRunComamandFunction(checkMessage(message)));
+                                                        sendMessage(writer, d[2], CommandRunner.DetectAndRunComamandFunction(checkMessage(sender, message)));
                                                     }
 
                                                     writer.Flush();
