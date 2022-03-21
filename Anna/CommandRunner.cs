@@ -88,25 +88,8 @@ namespace Anna
                 string publishFolderName = getPublishFolderName(Data["PublishConfiguration"]);
                 string destinationFolderName = getDestinationFolderName(Data["Destination"]);
 
-                string[] cmdCommands =
-                {
-                    $"cd {addQuotes(Data["Destination"] + "/../")}",
-                    $"rmdir /s {addQuotes(Data["Destination"] + "_backup")}",
-                    "Y", // accept changes from rmdir (cmd prompt Y/N),
-                    $"XCopy /E /I {addQuotes(Data["Destination"])} {destinationFolderName}_backup",
-                    $"mkdir {addQuotes(Data["Destination"])}", // if doesn't exist
-                    $"cd {addQuotes(Data["Destination"])}",
-                    $"git pull origin {Data["Branch"]}",
-                    $"git clone {addQuotes(Data["Repository"])} .",
-                    $"git checkout {Data["Branch"]}",
-                    $"cd {Data["Name"]}",
-                    "dotnet test",
-                    $"dotnet publish {Data["PublishConfiguration"]}",
-                    $"cd {publishFolderName}",
-                    $"{Data["Name"]}.exe"
-                };
-
-                execCmdCommands(cmdCommands);
+                execCmdCommands($"publish.bat {Data["Name"]} {addQuotes(Data["Repository"])} {Data["Branch"]} {addQuotes(Data["Destination"])} {Data["PublishConfiguration"]}");
+                    
             }
             catch (Exception e)
             {
@@ -126,7 +109,9 @@ namespace Anna
 
         public static void SqlInsertSystemLog(object[] args)
         {
+
             string sql = "INSERT INTO SystemLog (UserNick,Message,Event,Type) VALUES(@p0,@p1,@p2,@p3)";
+
             Db.ExecNonQuerySql(sql,args);
 
         }
@@ -152,39 +137,22 @@ namespace Anna
             }
         }
 
-        public static void execCmdCommands(string[] commands)
+        public static void execCmdCommands(string command)
         {
-            Process p = new Process();
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.FileName = "cmd.exe";
-            info.RedirectStandardInput = true;
-            // info.RedirectStandardOutput = true;
-            info.UseShellExecute = false;
-            // info.RedirectStandardError = true;
-
-            p.StartInfo = info;
-            p.Start();
-
-            using (StreamWriter sw = p.StandardInput)
-            {
-                if (sw.BaseStream.CanWrite)
-                {
-                    foreach (var cmd in commands)
-                    {
-                        sw.WriteLine(cmd);
-                    }
-                }
-            }
-
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments =
+                $"/C {command}";
+            startInfo.RedirectStandardError = false;
+            startInfo.RedirectStandardOutput = false;
+            startInfo.RedirectStandardInput = false;
+            startInfo.Verb = "runas";
+            process.StartInfo = startInfo;
+            process.Start();
+            
             // string stdout_str = p.StandardOutput.ReadToEnd();
             // string stderr_str = p.StandardError.ReadToEnd();
-            // Console.WriteLine("--------------");
-            // Console.WriteLine(stdout_str);
-            // Console.WriteLine("--------------");
-            // Console.WriteLine(stderr_str);
-            // Console.WriteLine("--------------");
-
-            p.WaitForExit();
         }
 
         public static string Reverse(string s)

@@ -119,6 +119,7 @@ namespace Anna
 
                 //log bot initiation
                 object[] upTimeArgs = { _config.nick, "!BOTSTARTED!", 0 , 0};
+
                 CommandRunner.SqlInsertSystemLog(upTimeArgs);
                 
                 // String URLString = "https://www.polsatnews.pl/rss/biznes.xml";
