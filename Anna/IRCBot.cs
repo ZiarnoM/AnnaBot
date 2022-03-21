@@ -113,7 +113,7 @@ namespace Anna
                 Console.WriteLine($"Connected: {client.Connected}");
 
                 //log bot initiation
-                object[] upTimeArgs = { _config.nick, "!BOTSTARTED!", 0 };
+                object[] upTimeArgs = { _config.nick, "!BOTSTARTED!", 0,0 };
                 CommandRunner.SqlInsertSystemLog(upTimeArgs);
 
                 using (var stream = client.GetStream())
