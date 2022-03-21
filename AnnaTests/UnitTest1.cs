@@ -17,7 +17,7 @@ namespace AnnaTests
         public void Test1()
         {
             string asd = "asd";
-            Message message = _bot.checkMessage("!" + asd);
+            Message message = _bot.checkMessage("BotenAnna","!" + asd);
             Assert.AreEqual(asd, message.command);
             Assert.Pass("JEST WYNERWISCIE");
         }
