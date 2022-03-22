@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using TFunc =
     System.Func<System.Collections.Generic.IDictionary<string, object>,
         System.Collections.Generic.IDictionary<string, object>>;
@@ -45,29 +46,20 @@ namespace Anna
 
         public static string SqlResponseToString(string sql, object[] args)
         {
-            var resultStr = "";
+            var resultArr = new string[] { };
+            string resultStr = "";
             DataRowCollection result = Db.ExecSqlCollection(sql, args);
             if (result.Count == 1)
             {
-                foreach (var cell in result[0].ItemArray)
-                {
-                    resultStr += cell + " ";
-                }
-
-                return resultStr;
+                return string.Join(" ", result[0].ItemArray);
             }
 
             foreach (DataRow row in result)
             {
-                foreach (var cell in row.ItemArray)
-                {
-                    resultStr += cell + " ";
-                }
-
-                resultStr += ", ";
+                resultArr.Append(string.Join(" ", row.ItemArray));
             }
 
-            return resultStr;
+            return string.Join("\n", resultArr);
         }
 
         //TODO
