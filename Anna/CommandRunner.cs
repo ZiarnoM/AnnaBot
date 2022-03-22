@@ -46,8 +46,7 @@ namespace Anna
 
         public static string SqlResponseToString(string sql, object[] args)
         {
-            var resultArr = new string[] { };
-            string resultStr = "";
+            var resultList = new List<string>();
             DataRowCollection result = Db.ExecSqlCollection(sql, args);
             if (result.Count == 1)
             {
@@ -56,10 +55,9 @@ namespace Anna
 
             foreach (DataRow row in result)
             {
-                resultArr.Append(string.Join(" ", row.ItemArray));
+                resultList.Add(string.Join(" ", row.ItemArray));
             }
-
-            return string.Join("\n", resultArr);
+            return string.Join("\n", resultList);
         }
 
         //TODO
