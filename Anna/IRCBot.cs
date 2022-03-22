@@ -103,11 +103,15 @@ namespace Anna
             return messageContent;
         }
 
-        public void sendMessage(StreamWriter writer, string receiver, string message)
+        public void sendMessage(StreamWriter writer, string receiver, string[] messages)
         {
-            string[] args = new string[] { _config.nick, message, receiver };
-            CommandRunner.SqlInsertLog(args);
-            writer.WriteLine($"PRIVMSG {receiver} :{message}");
+            foreach (string message in messages)
+            {
+                string[] args = new string[] { _config.nick, message, receiver };
+                CommandRunner.SqlInsertLog(args);
+                writer.WriteLine($"PRIVMSG {receiver} :{message}");
+            }
+            
         }
         public void Run()
         {
@@ -186,7 +190,7 @@ namespace Anna
                                             {
                                                 writer.WriteLine($"JOIN {channel}");
                                                 // communicate with everyone on the channel as soon as the bot logs in
-                                                sendMessage(writer, channel, CommandRunner.GetCodesValue("WELCOME-MESSAGE"));
+                                                sendMessage(writer, channel, new []{ CommandRunner.GetCodesValue("WELCOME-MESSAGE")});
                                                 writer.Flush();
                                             }
 
@@ -218,7 +222,7 @@ namespace Anna
 
                                                     if (message[0] == '!')
                                                     {
-                                                        sendMessage(writer, d[2], CommandRunner.DetectAndRunComamandFunction(checkMessage(sender, message)));
+                                                        sendMessage(writer, d[2], new []{ CommandRunner.DetectAndRunComamandFunction(checkMessage(sender, message))});
                                                     }
 
                                                     writer.Flush();
