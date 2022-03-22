@@ -14,6 +14,7 @@ dotnet clean -v q -c Release %1
 dotnet test %1
 dotnet publish -o publish -c Release %1
 
+rmdir /s /q %4
 mkdir %4
 xcopy publish %4 /E /H /R /X /Y /I /K /C /O
 cd C:/
