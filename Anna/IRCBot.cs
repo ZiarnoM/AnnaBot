@@ -107,9 +107,16 @@ namespace Anna
 
         public void sendMessage(StreamWriter writer, string receiver, string message)
         {
-            string[] args = new string[] {_config.nick, message, receiver};
-            CommandRunner.SqlInsertLog(args);
-            writer.WriteLine($"PRIVMSG {receiver} :{message}");
+            string[] messages = message.Split("\n");
+            foreach (string mess in messages)
+            {
+                string[] args = new string[] {_config.nick, mess, receiver};
+                CommandRunner.SqlInsertLog(args);
+                writer.WriteLine($"PRIVMSG {receiver} :{mess}"); 
+            }
+                
+            
+            
         }
 
         public void Run()
