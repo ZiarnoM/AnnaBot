@@ -8,6 +8,7 @@ using TFunc =
     System.Func<System.Collections.Generic.IDictionary<string, object>,
         System.Collections.Generic.IDictionary<string, object>>;
 
+
 namespace Anna
 {
     public class CommandRunner
@@ -83,7 +84,10 @@ namespace Anna
             }
             catch (Exception e)
             {
-                Console.Write(e);
+                object[] errorArgs = {IrcBot._config.nick,e.GetMergedErrors() , 1, 1};
+                object[] stackArgs = {IrcBot._config.nick, e.StackTrace, 1, 1};
+                SqlInsertSystemLog(errorArgs);
+                SqlInsertSystemLog(stackArgs);
                 return "Error";
             }
 
@@ -132,17 +136,15 @@ namespace Anna
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments =
-                $"/C {command}";
+            startInfo.Arguments = "/C " + command;
             startInfo.RedirectStandardError = false;
             startInfo.RedirectStandardOutput = false;
             startInfo.RedirectStandardInput = false;
-            startInfo.Verb = "runas";
             process.StartInfo = startInfo;
             process.Start();
             
-            // string stdout_str = p.StandardOutput.ReadToEnd();
-            // string stderr_str = p.StandardError.ReadToEnd();
+            string stdout_str = process.StandardOutput.ReadToEnd();
+            string stderr_str = process.StandardError.ReadToEnd();
         }
 
         public static string Reverse(string s)

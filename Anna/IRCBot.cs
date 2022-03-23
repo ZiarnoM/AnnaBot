@@ -24,7 +24,7 @@ namespace Anna
 
     public class IrcBot
     {
-        private ConfigModel _config;
+        public static ConfigModel _config;
 
         public IrcBot(ConfigModel configModel)
         {
