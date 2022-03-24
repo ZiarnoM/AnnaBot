@@ -109,7 +109,6 @@ namespace Anna
         }
         public static void ExecNonQuerySql(string sqlCmd, object[] args)
         {
-            
             SqlCommand command =  commandSQL(_con, sqlCmd, args);
             int result = command.ExecuteNonQuery();
         }
