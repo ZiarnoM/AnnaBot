@@ -5,5 +5,5 @@
   "channels": [
     ""
   ],
-  "connectionString": "Data Source=KDR-SPRZ-014;Initial Catalog=Anna;User ID=michal;Password=123"
+  "connectionString": ""
 }
