@@ -75,11 +75,28 @@ namespace Anna
                     {"Destination", result.ItemArray[3].ToString()},
                     {"PublishConfiguration", result.ItemArray[4].ToString()},
                 };
+                
+                string [] commands = new string[]
+                {
+                    "rmdir /s /q tempPublish",
+                    "mkdir tempPublish",
+                    "cd tempPublish",
+                    $"git clone {Data["Repository"]} .",
+                    $"git checkout {Data["Branch"]}",
+                    $"dotnet clean -v q -c Release {Data["Name"]}",
+                    $"dotnet test {Data["Name"]}",
+                    $"dotnet publish -o publish -c Release {Data["Name"]}",
+                    $"mkdir {addQuotes(Data["Destination"])}",
+                    $"xcopy publish ${addQuotes(Data["Destination"])} /E /H /R /X /Y /I /K /C /O",
+                    "cd ../",
+                    "timeout 1", // in case any process is using tempPublish
+                    "rmdir /s /q tempPublish"
+                };
 
                 string publishFolderName = getPublishFolderName(Data["PublishConfiguration"]);
                 string destinationFolderName = getDestinationFolderName(Data["Destination"]);
 
-                execCmdCommands($"publish.bat {Data["Name"]} {addQuotes(Data["Repository"])} {Data["Branch"]} {addQuotes(Data["Destination"])} {Data["PublishConfiguration"]}");
+                execCmdCommands(commands);
                     
             }
             catch (Exception e)
@@ -131,17 +148,27 @@ namespace Anna
             }
         }
 
-        public static void execCmdCommands(string command)
+        public static void execCmdCommands(string[] commands)
         {
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C " + command;
             startInfo.RedirectStandardError = false;
             startInfo.RedirectStandardOutput = false;
             startInfo.RedirectStandardInput = false;
             process.StartInfo = startInfo;
             process.Start();
+            
+            using (StreamWriter sw = process.StandardInput)
+            {
+                if (sw.BaseStream.CanWrite)
+                {
+                    foreach (string command in commands)
+                    {
+                        sw.WriteLine("/C " + command);
+                    }
+                }
+            }
             
             string stdout_str = process.StandardOutput.ReadToEnd();
             string stderr_str = process.StandardError.ReadToEnd();
