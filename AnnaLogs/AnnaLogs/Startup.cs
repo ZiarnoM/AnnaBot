@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data;
+using System.Threading;
+using Anna;
 
 namespace AnnaLogs
 {
@@ -16,6 +19,9 @@ namespace AnnaLogs
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            string conStr = configuration.GetConnectionString("dbCon");
+            var db = new Db(new ConfigModel { connectionString = conStr });
         }
 
         public IConfiguration Configuration { get; }
