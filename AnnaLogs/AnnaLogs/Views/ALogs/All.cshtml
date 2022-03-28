@@ -1,7 +1,7 @@
 ﻿@{
 @using AnnaLogs.Models
 @using Anna;
-@model LogsViewModel
+@model ALogsViewModel
 @using System.Data
 @using System.Text
     DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});

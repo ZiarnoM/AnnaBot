@@ -6,7 +6,7 @@ using System.Data;
 
 namespace AnnaLogs.Controllers
 {
-    public class LogsController : Controller
+    public class ALogsController : Controller
     {
         public IActionResult Index()
         {
@@ -15,7 +15,7 @@ namespace AnnaLogs.Controllers
         public IActionResult All()
         {
 
-            LogsViewModel m = new LogsViewModel()
+            ALogsViewModel m = new ALogsViewModel()
             {
             };
             return View(m); 

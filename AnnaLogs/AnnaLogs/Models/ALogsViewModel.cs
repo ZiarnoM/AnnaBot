@@ -6,7 +6,7 @@ using System.Data;
 
 namespace AnnaLogs.Models
 {
-    public class LogsViewModel
+    public class ALogsViewModel
     {
         public List<string>? Logs { get; set; }
         public List<string>? Users { get; set; }
