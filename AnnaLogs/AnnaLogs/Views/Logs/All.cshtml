@@ -1,0 +1,69 @@
+﻿@{
+@using AnnaLogs.Models
+@using Anna;
+@model LogsViewModel
+@using System.Data
+@using System.Text
+    DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});
+    foreach (DataRow zyd in Dates)
+    {
+        
+    }
+}
+<h1 class="test">Tutaj nazwa kanalu</h1>
+<form class="test">
+<input type="date">
+<input type="submit" value="Wyświetl"/>
+</form>
+<div>
+    @{
+        DataRowCollection Essa=  Db.ExecSqlCollection("Select Id,UserNick,Message,Date Channel from Log;",new object[] {});
+    }
+        @foreach (DataRow zyd in Essa){
+            if (@zyd.ItemArray[1].ToString() == "BotenAnna2" || @zyd.ItemArray[1].ToString() == "BotenAnnaMichal"){
+                <div class="logs">
+                    <p onclick="Show(this.id)" id="@zyd.ItemArray[0]" class="Anna white2115"><strong>@zyd.ItemArray[1]</strong> : @zyd.ItemArray[2]</p>
+                    @{
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("0");
+                        string str1 = @zyd.ItemArray[0].ToString();
+                        sb.Append(str1);
+                        string zzz = sb.ToString();
+                        string nn = @zyd.ItemArray[3].ToString();
+                        string[] n = nn.Split(' ');
+                    }
+                    <span id="@zzz"class="JD">@n[1]</span>
+                </div>
+            }
+            else{
+                <div class="logs">
+                    <p onclick="Show(this.id)" id="@zyd.ItemArray[0]" class="white2115"><strong>@zyd.ItemArray[1]</strong> : @zyd.ItemArray[2]</p>
+                    @{
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append("0");
+                        string str1 = @zyd.ItemArray[0].ToString();
+                        sb.Append(str1);
+                        string zzz = sb.ToString();
+                        string nn = @zyd.ItemArray[3].ToString();
+                        string[] n = nn.Split(' ');
+                    }
+                    <span id="@zzz"class="JD">@n[1]</span>
+                </div>
+            }
+        }
+</div>
+<script>
+    function Show(clickedId) {
+        let search = '0'+clickedId
+        let x = 'All#'+clickedId
+        console.log(search)
+        let s = document.getElementById(search)
+        if(s.classList.contains('JDclicked')){
+            s.classList.remove('JDclicked')
+        }
+        else{
+            s.classList.add('JDclicked')
+        }
+        window.location.href=x
+    }
+</script>

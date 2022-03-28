@@ -17,26 +17,7 @@ namespace AnnaLogs.Controllers
 
             LogsViewModel m = new LogsViewModel()
             {
-                Logs = new List<string> { },
-                Users = new List<string> { },
-                AllCont = new List<string> { }
             };
-
-            for (int i = 0; i < 101; i++)
-            {
-                string msg = "User" + i.ToString() + (i + 2).ToString();
-                m.Logs.Add(msg);
-            }
-            for (int i = 0; i < 101; i++)
-            {
-                string msgx = "Message" + i.ToString() + (i + 2).ToString();
-                m.Users.Add(msgx);
-            }
-            for (int i = 0; i < 101; i++)
-            {
-                string jd = m.Logs[i] + " " + m.Users[i];
-                m.AllCont.Add(jd);
-            }
             return View(m); 
         }
     }
