@@ -6,14 +6,15 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-        @{DataRowCollection Channels =  Db.ExecSqlCollection("Select Distinct Channel from Log;",new object[] {});}
-        <table> <tr>
-            @{
-            foreach (DataRow dataRow in Channels)
+        @{DataRowCollection Channels =  Db.ExecSqlCollection("Select Distinct Channel from Log;",new object[] {});
+        }
+        <form>
+            
+            @foreach (DataRow dataRow in Channels)
                     {
-                        <td><a href="/ALogs/All">@dataRow.ItemArray[0]</a></td>
+                        <a href="/ALogs/All"><input type="button" value="@dataRow.ItemArray[0]"></a>
                     }
-                    }
-        </tr></table>  
+                    
+        </form>  
     
 </div>

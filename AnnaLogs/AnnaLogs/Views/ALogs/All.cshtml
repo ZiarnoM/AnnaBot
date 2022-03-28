@@ -4,32 +4,32 @@
 @model ALogsViewModel
 @using System.Data
 @using System.Text
-    DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});
-    foreach (DataRow zyd in Dates)
-    {
-        
-    }
+
+DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});
+
 }
 <h1 class="test">Tutaj nazwa kanalu</h1>
 <form class="test">
-<input type="date">
+<input list="dates">
+<datalist id="dates">
+        @foreach(DataRow row in Model.UniqeDates){
+        <option value=@row.ItemArray[0]></option>
+        }
+  </datalist>
 <input type="submit" value="Wyświetl"/>
 </form>
 <div>
-    @{
-        DataRowCollection Essa=  Db.ExecSqlCollection("Select Id,UserNick,Message,Date Channel from Log;",new object[] {});
-    }
-        @foreach (DataRow zyd in Essa){
-            if (@zyd.ItemArray[1].ToString() == "BotenAnna2" || @zyd.ItemArray[1].ToString() == "BotenAnnaMichal"){
+        @foreach (DataRow row in Model.Logs){
+            if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal"){
                 <div class="logs">
-                    <p onclick="Show(this.id)" id="@zyd.ItemArray[0]" class="Anna white2115"><strong>@zyd.ItemArray[1]</strong> : @zyd.ItemArray[2]</p>
+                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
                     @{
                         StringBuilder sb = new StringBuilder();
                         sb.Append("0");
-                        string str1 = @zyd.ItemArray[0].ToString();
+                        string str1 = @row.ItemArray[0].ToString();
                         sb.Append(str1);
                         string zzz = sb.ToString();
-                        string nn = @zyd.ItemArray[3].ToString();
+                        string nn = @row.ItemArray[3].ToString();
                         string[] n = nn.Split(' ');
                     }
                     <span id="@zzz"class="JD">@n[1]</span>
@@ -37,14 +37,14 @@
             }
             else{
                 <div class="logs">
-                    <p onclick="Show(this.id)" id="@zyd.ItemArray[0]" class="white2115"><strong>@zyd.ItemArray[1]</strong> : @zyd.ItemArray[2]</p>
+                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
                     @{
                         StringBuilder sb = new StringBuilder();
                         sb.Append("0");
-                        string str1 = @zyd.ItemArray[0].ToString();
+                        string str1 = @row.ItemArray[0].ToString();
                         sb.Append(str1);
                         string zzz = sb.ToString();
-                        string nn = @zyd.ItemArray[3].ToString();
+                        string nn = @row.ItemArray[3].ToString();
                         string[] n = nn.Split(' ');
                     }
                     <span id="@zzz"class="JD">@n[1]</span>
@@ -56,7 +56,6 @@
     function Show(clickedId) {
         let search = '0'+clickedId
         let x = 'All#'+clickedId
-        console.log(search)
         let s = document.getElementById(search)
         if(s.classList.contains('JDclicked')){
             s.classList.remove('JDclicked')

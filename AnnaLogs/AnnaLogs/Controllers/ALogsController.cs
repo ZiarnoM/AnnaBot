@@ -14,9 +14,12 @@ namespace AnnaLogs.Controllers
         }
         public IActionResult All()
         {
-
+            DataRowCollection Values = Db.ExecSqlCollection("Select Id,UserNick,Message,Date,Channel from Log;", new object[] { });
+            DataRowCollection Dates = Db.ExecSqlCollection("Select Distinct convert(varchar(10), Date, 120) from Log;", new object[] { });
             ALogsViewModel m = new ALogsViewModel()
             {
+                Logs = Values,
+                UniqeDates = Dates
             };
             return View(m); 
         }

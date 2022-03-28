@@ -8,9 +8,8 @@ namespace AnnaLogs.Models
 {
     public class ALogsViewModel
     {
-        public List<string>? Logs { get; set; }
-        public List<string>? Users { get; set; }
+        public DataRowCollection Logs { get; set; }
+        public DataRowCollection UniqeDates { get; set; }
         public List<string>? AllCont { get; set; }
-        public DataRowCollection Message { get; set; }
     }
 }

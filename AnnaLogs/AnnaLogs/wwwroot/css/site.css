@@ -85,16 +85,6 @@ html {
 .logs > p {
     margin: 0;
 }
-table{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-}
-td {
-    border: 1px solid black;
-    padding: 5px;
-    cursor: pointer;
-}
 .Anna{
     color:#888888;
 }
