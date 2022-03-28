@@ -98,3 +98,12 @@ td {
 .Anna{
     color:#888888;
 }
+.JD{
+    display:none;
+}
+.JDclicked{
+    display:block;
+}
+.white2115 {
+    cursor: pointer;
+}
