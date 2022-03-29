@@ -2,19 +2,25 @@
     ViewData["Title"] = "Home Page";
     @using System.Data
     @using Anna;
+    string asd = String.Empty;
 }
+
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-        @{DataRowCollection Channels =  Db.ExecSqlCollection("Select Distinct Channel from Log;",new object[] {});
-        }
-        <form>
-            
+    @{
+        DataRowCollection Channels = Db.ExecSqlCollection("Select Distinct Channel from Log;", new object[] { });
+    }
+    <form asp-controller="ALogs" asp-action="ChannelLogs">
+        <input list="channels" asp-for="@asd">
+        <datalist id="channels">
             @foreach (DataRow dataRow in Channels)
-                    {
-                        <a href="/ALogs/All"><input type="button" value="@dataRow.ItemArray[0]"></a>
-                    }
-                    
-        </form>  
-    
+            {
+                <option value="@dataRow.ItemArray[0]"></option>
+            }
+        </datalist>
+        <br /><br />
+        <input type="submit" value="Zatwierdz" />
+    </form>
+
 </div>

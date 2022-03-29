@@ -4,23 +4,21 @@
 @model ALogsViewModel
 @using System.Data
 @using System.Text
-
-DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});
-
 }
-<h1 class="test">Tutaj nazwa kanalu</h1>
+<h1 class="test">Kanał: @Model.channelName</h1>
+<h1 class="test">Data: @Model.Last</h1>
 <form class="test">
-<input list="dates">
-<datalist id="dates">
-        @foreach(DataRow row in Model.UniqeDates){
-        <option value=@row.ItemArray[0]></option>
-        }
-  </datalist>
+    <input list="dates" value="@Model.Last">
+    <datalist id="dates">
+            @foreach(DataRow row in Model.UniqeDates){
+                <option value=@row.ItemArray[0]></option>
+            }
+    </datalist>
 <input type="submit" value="Wyświetl"/>
 </form>
 <div>
         @foreach (DataRow row in Model.Logs){
-            if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal"){
+            if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal" || @row.ItemArray[1].ToString() == "BotenAnnaDis"){
                 <div class="logs">
                     <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
                     @{
@@ -55,7 +53,7 @@ DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new objec
 <script>
     function Show(clickedId) {
         let search = '0'+clickedId
-        let x = 'All#'+clickedId
+        let x = 'ChannelLogs#'+clickedId
         let s = document.getElementById(search)
         if(s.classList.contains('JDclicked')){
             s.classList.remove('JDclicked')
