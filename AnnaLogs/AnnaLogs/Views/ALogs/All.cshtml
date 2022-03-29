@@ -1,54 +1,62 @@
 ﻿@{
-@using AnnaLogs.Models
-@using Anna;
-@model ALogsViewModel
-@using System.Data
-@using System.Text
+    @using AnnaLogs.Models
+    @using Anna;
+    @model ALogsViewModel
+
+    @using System.Data
+    @using System.Text
+    string channLog = String.Empty;
+    string datLog = String.Empty;
 }
 <h1 class="test">Kanał: @Model.channelName</h1>
 <h1 class="test">Data: @Model.Last</h1>
-<form class="test">
-    <input list="dates" value="@Model.Last">
+<form class="test" asp-controller="ALogs" asp-action="ViewLog">
+    <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+    <input list="dates" value="@Model.Last"asp-for="@datLog">
     <datalist id="dates">
-            @foreach(DataRow row in Model.UniqeDates){
-                <option value=@row.ItemArray[0]></option>
-            }
+        @foreach (DataRow row in Model.UniqeDates)
+        {
+            <option value=@row.ItemArray[0]></option>
+        }
     </datalist>
-<input type="submit" value="Wyświetl"/>
+    <input type="submit" value="Wyświetl" />
 </form>
 <div>
-        @foreach (DataRow row in Model.Logs){
-            if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal" || @row.ItemArray[1].ToString() == "BotenAnnaDis"){
-                <div class="logs">
-                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
-                    @{
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("0");
-                        string str1 = @row.ItemArray[0].ToString();
-                        sb.Append(str1);
-                        string zzz = sb.ToString();
-                        string nn = @row.ItemArray[3].ToString();
-                        string[] n = nn.Split(' ');
-                    }
-                    <span id="@zzz"class="JD">@n[1]</span>
-                </div>
-            }
-            else{
-                <div class="logs">
-                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
-                    @{
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("0");
-                        string str1 = @row.ItemArray[0].ToString();
-                        sb.Append(str1);
-                        string zzz = sb.ToString();
-                        string nn = @row.ItemArray[3].ToString();
-                        string[] n = nn.Split(' ');
-                    }
-                    <span id="@zzz"class="JD">@n[1]</span>
-                </div>
-            }
+    @foreach (DataRow row in Model.Logs)
+    {
+        if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal" || @row.ItemArray[1].ToString() == "BotenAnnaDis" || @row.ItemArray[1].ToString() == "AnnaBotDis")
+        {
+            <div class="logs">
+                <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
+                @{
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("0");
+                    string str1 = @row.ItemArray[0].ToString();
+                    sb.Append(str1);
+                    string zzz = sb.ToString();
+                    string nn = @row.ItemArray[3].ToString();
+                    string[] n = nn.Split(' ');
+                }
+                <span id="@zzz" class="JD">@n[1]</span>
+            </div>
         }
+        else
+        {
+            <div class="logs">
+                <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
+                @{
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("0");
+                    string str1 = @row.ItemArray[0].ToString();
+                    sb.Append(str1);
+                    string zzz = sb.ToString();
+                    string nn = @row.ItemArray[3].ToString();
+                    string[] n = nn.Split(' ');
+                }
+                <span id="@zzz" class="JD">@n[1]</span>
+            </div>
+        }
+    }
 </div>
 <script>
     function Show(clickedId) {
@@ -61,6 +69,5 @@
         else{
             s.classList.add('JDclicked')
         }
-        window.location.href=x
     }
 </script>
