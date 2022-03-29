@@ -47,10 +47,11 @@ namespace Anna
                             xmlColection.Add(new string[]
                             {
                                 rssRow.ItemArray[0].ToString(),
-                                item["title"].InnerText,
-                                item["description"].InnerText,
-                                item["link"].InnerText,
-                                item["pubDate"].InnerText
+                                rssRow.ItemArray[2].ToString(),
+                                item["title"]?.InnerText,
+                                item["description"]?.InnerText,
+                                item["link"]?.InnerText,
+                                item["pubDate"]?.InnerText
                             });
                         }
                         
