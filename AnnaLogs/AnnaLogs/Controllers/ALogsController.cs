@@ -32,7 +32,7 @@ namespace AnnaLogs.Controllers
         public IActionResult All(string channLog, string date)
         {
             string tempVar = channLog;
-            DataRow x = Db.ExecSql("Select top 1 convert(varchar(10), Date, 120) from Log Order By Date DESC;", new object[] { });
+            DataRow x = Db.ExecSql("Select top 1 convert(varchar(10), Date, 120) from Log where (Channel = @p0) Order By Date DESC;", new object[] { tempVar });
             string nn = @x.ItemArray[0].ToString();
             string[] n = nn.Split(' ');
             if (date == "")

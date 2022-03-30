@@ -8,11 +8,12 @@
     string channLog = String.Empty;
     string datLog = String.Empty;
 }
+<button class="ButtonScroll"onclick="Scrolling()">Do najnowszych</button>
 <h1 class="test">Kanał: @Model.channelName</h1>
 <h1 class="test">Data: @Model.Last</h1>
 <form class="test" asp-controller="ALogs" asp-action="ViewLog">
     <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
-    <input list="dates" value="@Model.Last"asp-for="@datLog">
+    <input list="dates" value=""asp-for="@datLog">
     <datalist id="dates">
         @foreach (DataRow row in Model.UniqeDates)
         {
@@ -58,10 +59,17 @@
         }
     }
 </div>
+<button class="ButtonScroll"onclick="ScrollingUp()">Do najstarszych</button>
 <script>
+    function Scrolling(){
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+    function ScrollingUp(){
+        window.scrollTo(0, 0);
+    }
     function Show(clickedId) {
         let search = '0'+clickedId
-        let x = 'ChannelLogs#'+clickedId
+        let x = 'ViewLog#'+clickedId
         let s = document.getElementById(search)
         if(s.classList.contains('JDclicked')){
             s.classList.remove('JDclicked')
