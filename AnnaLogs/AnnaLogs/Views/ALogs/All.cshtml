@@ -9,8 +9,28 @@
     string datLog = String.Empty;
 }
 <button class="ButtonScroll"onclick="Scrolling()">Do najnowszych</button>
-<h1 class="test">Kanał: @Model.channelName</h1>
-<h1 class="test">Data: @Model.Last</h1>
+<h2 class="test">Kanał: @Model.channelName</h2>
+<div  class="test">
+<h2>Data: @Model.Last</h2>
+    @{
+        if (@Model.Yesterday != @Model.Last)
+        {
+            <form asp-controller="ALogs" asp-action="ViewLog">
+                <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+                <input type="hidden" value="@Model.Yesterday" asp-for="@datLog"/>
+                <input type="submit" value=@Model.Yesterday />
+            </form>
+        }
+        if (@Model.Tommorow != @Model.Last)
+        {
+            <form asp-controller="ALogs" asp-action="ViewLog">
+                <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+                <input type="hidden" value="@Model.Tommorow" asp-for="@datLog"/>
+                <input type="submit" value=@Model.Tommorow />
+            </form>
+        }
+    }
+</div>
 <form class="test" asp-controller="ALogs" asp-action="ViewLog">
     <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
     <input list="dates" value=""asp-for="@datLog">

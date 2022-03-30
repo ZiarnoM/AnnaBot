@@ -31,6 +31,8 @@ namespace AnnaLogs.Controllers
         }
         public IActionResult All(string channLog, string date)
         {
+            string YesterdayHelp = "";
+            string TommorowHelp = "";
             string tempVar = channLog;
             DataRow x = Db.ExecSql("Select top 1 convert(varchar(10), Date, 120) from Log where (Channel = @p0) Order By Date DESC;", new object[] { tempVar });
             string nn = @x.ItemArray[0].ToString();
@@ -39,15 +41,35 @@ namespace AnnaLogs.Controllers
             {
                 date = n[0];
             }
+            DataRow YesterdayDate = Db.ExecSql("Select top 1 convert(varchar(10), Date, 120) from Log where ((Channel = '#Annabot')) and (Left(convert(varchar(10), Date, 120), 10)<@p1)  Order By Date DESC", new object[] { tempVar, date });
             DataRowCollection Values = Db.ExecSqlCollection("Select Id,UserNick,Message,Date,Channel from Log where (Channel = @p0) and (Left(convert(varchar(10), Date, 120), 10) =@p1);", new object[] { tempVar, date });
             DataRowCollection Dates = Db.ExecSqlCollection("Select Distinct convert(varchar(10), Date, 120) from Log;", new object[] { });
+            if (YesterdayDate is null)
+            {
+                YesterdayHelp = date;
+            }
+            else
+            {
+                YesterdayHelp = YesterdayDate.ItemArray[0].ToString();
+            }
+            DataRow TommorowDate = Db.ExecSql("Select top 1 convert(varchar(10), Date, 120) from Log where ((Channel = '#Annabot')) and (Left(convert(varchar(10), Date, 120), 10)>@p1)  Order By Date ASC", new object[] { tempVar, date });
+            if (TommorowDate is null)
+            {
+                TommorowHelp = date;
+            }
+            else
+            {
+                TommorowHelp = TommorowDate.ItemArray[0].ToString();
+            }
             ALogsViewModel m = new ALogsViewModel()
             {
                 Logs = Values,
                 UniqeDates = Dates,
                 channelName = tempVar,
-                Last = date
-            };
+                Last = date,
+                Yesterday = YesterdayHelp,
+                Tommorow = TommorowHelp
+                };
             return View("All", m);
         }
     }
