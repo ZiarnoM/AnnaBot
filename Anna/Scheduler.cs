@@ -15,7 +15,6 @@ namespace Anna
 {
     public class Scheduler
     {
-
         public static Dictionary<string, Func<string, object[], string>> Commands =
             new Dictionary<string, Func<string, object[], string>>()
             {
@@ -58,7 +57,6 @@ namespace Anna
                                 item["pubDate"]?.InnerText
                             });
                         }
-
                     }
                 }
             }
@@ -68,54 +66,40 @@ namespace Anna
 
         public static void checkScheduler()
         {
-
-
             Thread aoe = new Thread(new ThreadStart(() =>
             {
                 while (true)
                 {
-                    Thread.Sleep(3000);
-                    DataRowCollection schedulerTasksToRun = Db.ExecSqlCollection(
-                        "select SchedulerId from ReportsScheduler where ActiveP = 1 and NextStart < GETDATE()",
-                        new object[] { });
-                    foreach (DataRow schedulerTaskRow in schedulerTasksToRun)
+                    try
                     {
-                        DataRowCollection schedulerTasksSql = Db.ExecSqlCollection(
-                            "select SQl,SendMethod from Scheduler where Id = @p0",
-                            new object[] {schedulerTaskRow.ItemArray[0]});
-                        foreach (DataRow schedulerRow in schedulerTasksSql)
+                        Thread.Sleep(3000);
+                        DataRowCollection schedulerTasksToRun = Db.ExecSqlCollection(
+                            "select SchedulerId from ReportsScheduler where ActiveP = 1 and NextStart < GETDATE()",
+                            new object[] { });
+                        foreach (DataRow schedulerTaskRow in schedulerTasksToRun)
                         {
-                            string action = schedulerRow.ItemArray[1].ToString();
-                            string sqlCmd = schedulerRow.ItemArray[0].ToString();
-                            Commands[action](sqlCmd, new object[] { });
+                            DataRowCollection schedulerTasksSql = Db.ExecSqlCollection(
+                                "select SQl,SendMethod from Scheduler where Id = @p0",
+                                new object[] {schedulerTaskRow.ItemArray[0]});
+                            foreach (DataRow schedulerRow in schedulerTasksSql)
+                            {
+                                string action = schedulerRow.ItemArray[1].ToString();
+                                string sqlCmd = schedulerRow.ItemArray[0].ToString();
+                                Commands[action](sqlCmd, new object[] { });
+                            }
                         }
-
                     }
-
-
+                    catch (Exception e)
+                    {
+                        object[] errorArgs = {IrcBot._config.nick,e.GetMergedErrors() , 1, 1};
+                        object[] stackArgs = {IrcBot._config.nick, e.StackTrace, 1, 1};
+                        CommandRunner.SqlInsertSystemLog(errorArgs);
+                        CommandRunner.SqlInsertSystemLog(stackArgs);
+                    }
                 }
-
             }));
 
             aoe.Start();
         }
-
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
