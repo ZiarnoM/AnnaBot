@@ -6,7 +6,7 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Wybór kanału</h1>
+    <h1 style="margin-top:2%" class="display-4">Wybór kanału</h1>
     @{
         DataRowCollection Channels = Db.ExecSqlCollection("Select Distinct Channel from Log;", new object[] { });
     }

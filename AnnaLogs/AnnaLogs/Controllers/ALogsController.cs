@@ -21,6 +21,16 @@ namespace AnnaLogs.Controllers
         {
             _ = asd;
             string testing = asd;
+            DataRowCollection AllChannels = Db.ExecSqlCollection("Select Channel from Log", new object[] { });
+            foreach(DataRow row in AllChannels)
+            {
+                if (testing == row.ItemArray[0].ToString())
+                {
+                    return ViewLog(testing, "");
+                }
+            }
+            DataRow a = Db.ExecSql("Select Top 1 Channel from Log", new object[] { });
+            testing = a.ItemArray[0].ToString();
             return ViewLog(testing,"");
         }
 

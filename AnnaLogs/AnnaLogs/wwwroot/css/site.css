@@ -78,7 +78,6 @@ html {
 }
 
 .test {
-    border-bottom: 2px solid black;
     padding: 3px 0 7px 5px;
     margin: 7px 0;
 }
@@ -102,4 +101,13 @@ html {
 .ButtonScroll {
     margin-left: 5px;
     margin-top: 15px;
+}
+.SwitchDays {
+    border: none;
+    background-color: #FFFFFF;
+    color: blue;
+    text-decoration: underline;
+}
+.SwitchDays:hover{
+    opacity:0.4;
 }
