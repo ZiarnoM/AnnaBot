@@ -15,7 +15,7 @@
     @{
         if (@Model.Yesterday != @Model.Last)
         {
-            <form asp-controller="ALogs" asp-action="ViewLog">
+            <form asp-controller="ALogs" asp-action="ViewLog" id="YEST">
                 <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
                 <input type="hidden" value="@Model.Yesterday" asp-for="@datLog"/>
                 <input type="submit" value=@Model.Yesterday />
@@ -23,7 +23,7 @@
         }
         if (@Model.Tommorow != @Model.Last)
         {
-            <form asp-controller="ALogs" asp-action="ViewLog">
+            <form asp-controller="ALogs" asp-action="ViewLog" id="TOM">
                 <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
                 <input type="hidden" value="@Model.Tommorow" asp-for="@datLog"/>
                 <input type="submit" value=@Model.Tommorow />
@@ -81,6 +81,17 @@
 </div>
 <button class="ButtonScroll"onclick="ScrollingUp()">Do najstarszych</button>
 <script>
+     document.addEventListener('keyup', (event) => {
+    var name = event.key;
+    if (name === 'ArrowLeft') {
+      let form = document.getElementById("YEST");
+            form.submit();
+    }
+    if (name === 'ArrowRight') {
+      let form = document.getElementById("TOM");
+            form.submit();
+    }
+    }, false);
     function Scrolling(){
         window.scrollTo(0, document.body.scrollHeight);
     }
