@@ -74,16 +74,17 @@ html {
 
 .logs {
     padding-left: 5px;
+    word-break: break-all;
 }
 
 .test {
-    border-bottom: 2px solid black;
     padding: 3px 0 7px 5px;
     margin: 7px 0;
 }
 
 .logs > p {
     margin: 0;
+    font-size:85%;
 }
 .Anna{
     color:#888888;
@@ -96,4 +97,17 @@ html {
 }
 .white2115 {
     cursor: pointer;
+}
+.ButtonScroll {
+    margin-left: 5px;
+    margin-top: 15px;
+}
+.SwitchDays {
+    border: none;
+    background-color: #FFFFFF;
+    color: blue;
+    text-decoration: underline;
+}
+.SwitchDays:hover{
+    opacity:0.4;
 }

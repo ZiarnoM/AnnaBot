@@ -1,61 +1,108 @@
 ﻿@{
-@using AnnaLogs.Models
-@using Anna;
-@model ALogsViewModel
-@using System.Data
-@using System.Text
+    @using AnnaLogs.Models
+    @using Anna;
+    @model ALogsViewModel
 
-DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new object[] {});
-
+    @using System.Data
+    @using System.Text
+    string channLog = String.Empty;
+    string datLog = String.Empty;
+    var config = ConfigModel.DeserializeData("config.json");
 }
-<h1 class="test">Tutaj nazwa kanalu</h1>
-<form class="test">
-<input list="dates">
-<datalist id="dates">
-        @foreach(DataRow row in Model.UniqeDates){
-        <option value=@row.ItemArray[0]></option>
+<button class="ButtonScroll"onclick="Scrolling()">Do najnowszych</button>
+<h2 class="test">@Model.channelName</h2>
+<div  class="test">
+    @{
+        if (@Model.Yesterday != @Model.Last)
+        {
+            <form asp-controller="ALogs" asp-action="ViewLog" id="YEST">
+                <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+                <input type="hidden" value="@Model.Yesterday" asp-for="@datLog"/>
+                <input class="SwitchDays" type="submit" value=@Model.Yesterday />
+            </form>
         }
-  </datalist>
-<input type="submit" value="Wyświetl"/>
+        
+<h2 style="margin-bottom:0;">@Model.Last</h2>
+        if (@Model.Tommorow != @Model.Last)
+        {
+            <form asp-controller="ALogs" asp-action="ViewLog" id="TOM">
+                <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+                <input type="hidden" value="@Model.Tommorow" asp-for="@datLog"/>
+                <input class="SwitchDays"type="submit" value=@Model.Tommorow />
+            </form>
+        }
+    }
+</div>
+<form class="test" asp-controller="ALogs" asp-action="ViewLog">
+    <input type="hidden" value="@Model.channelName" asp-for="@channLog"/>
+    <input list="dates" value=""asp-for="@datLog">
+    <datalist id="dates">
+        @foreach (DataRow row in Model.UniqeDates)
+        {
+            <option value=@row.ItemArray[0]></option>
+        }
+    </datalist>
+    <input type="submit" value="Wyświetl" />
 </form>
 <div>
-        @foreach (DataRow row in Model.Logs){
-            if (@row.ItemArray[1].ToString() == "BotenAnna2" || @row.ItemArray[1].ToString() == "BotenAnnaMichal"){
-                <div class="logs">
-                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
-                    @{
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("0");
-                        string str1 = @row.ItemArray[0].ToString();
-                        sb.Append(str1);
-                        string zzz = sb.ToString();
-                        string nn = @row.ItemArray[3].ToString();
-                        string[] n = nn.Split(' ');
-                    }
-                    <span id="@zzz"class="JD">@n[1]</span>
-                </div>
-            }
-            else{
-                <div class="logs">
-                    <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
-                    @{
-                        StringBuilder sb = new StringBuilder();
-                        sb.Append("0");
-                        string str1 = @row.ItemArray[0].ToString();
-                        sb.Append(str1);
-                        string zzz = sb.ToString();
-                        string nn = @row.ItemArray[3].ToString();
-                        string[] n = nn.Split(' ');
-                    }
-                    <span id="@zzz"class="JD">@n[1]</span>
-                </div>
-            }
+    @foreach (DataRow row in Model.Logs)
+    {
+        if (@row.ItemArray[1].ToString() == @config.nick.ToString())
+        {
+            <div class="logs">
+                <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="Anna white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
+                @{
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("0");
+                    string str1 = @row.ItemArray[0].ToString();
+                    sb.Append(str1);
+                    string zzz = sb.ToString();
+                    string nn = @row.ItemArray[3].ToString();
+                    string[] n = nn.Split(' ');
+                }
+                <span id="@zzz" class="JD">@n[1]</span>
+            </div>
         }
+        else
+        {
+            <div class="logs">
+                <p onclick="Show(this.id)" id="@row.ItemArray[0]" class="white2115"><strong>@row.ItemArray[1]</strong> : @row.ItemArray[2]</p>
+                @{
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("0");
+                    string str1 = @row.ItemArray[0].ToString();
+                    sb.Append(str1);
+                    string zzz = sb.ToString();
+                    string nn = @row.ItemArray[3].ToString();
+                    string[] n = nn.Split(' ');
+                }
+                <span id="@zzz" class="JD">@n[1]</span>
+            </div>
+        }
+    }
 </div>
+<button class="ButtonScroll"onclick="ScrollingUp()">Do najstarszych</button>
 <script>
+     document.addEventListener('keyup', (event) => {
+    var name = event.key;
+    if (name === 'ArrowLeft') {
+      let form = document.getElementById("YEST");
+            form.submit();
+    }
+    if (name === 'ArrowRight') {
+      let form = document.getElementById("TOM");
+            form.submit();
+    }
+    }, false);
+    function Scrolling(){
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+    function ScrollingUp(){
+        window.scrollTo(0, 0);
+    }
     function Show(clickedId) {
         let search = '0'+clickedId
-        let x = 'All#'+clickedId
+        let x = 'ViewLog#'+clickedId
         let s = document.getElementById(search)
         if(s.classList.contains('JDclicked')){
             s.classList.remove('JDclicked')
@@ -63,6 +110,5 @@ DataRowCollection Dates=  Db.ExecSqlCollection("Select Date from Log;",new objec
         else{
             s.classList.add('JDclicked')
         }
-        window.location.href=x
     }
 </script>
