@@ -11,7 +11,6 @@
 <button class="ButtonScroll"onclick="Scrolling()">Do najnowszych</button>
 <h2 class="test">@Model.channelName</h2>
 <div  class="test">
-<h2>@Model.Last</h2>
     @{
         if (@Model.Yesterday != @Model.Last)
         {
@@ -21,6 +20,8 @@
                 <input class="SwitchDays" type="submit" value=@Model.Yesterday />
             </form>
         }
+        
+<h2 style="margin-bottom:0;">@Model.Last</h2>
         if (@Model.Tommorow != @Model.Last)
         {
             <form asp-controller="ALogs" asp-action="ViewLog" id="TOM">
