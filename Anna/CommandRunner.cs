@@ -18,7 +18,8 @@ namespace Anna
             {
                 {"Print", (sql, args) => { return SqlResponseToString(sql, args); }},
                 {"Operation", (sql, args) => { return ExecSqlOperation(sql, args); }},
-                {"Deploy", (sql, args) => { return Deploy(sql, args); }}
+                {"Deploy", (sql, args) => { return Deploy(sql, args); }},
+                {"AnnaDeploy", (sql, args) => { return AnnaDeploy(sql, args); }}
 
             };
 
@@ -87,16 +88,20 @@ namespace Anna
                     $"dotnet test {Data["Name"]}",
                     $"dotnet publish -o publish -c Release {Data["Name"]}",
                     $"mkdir {addQuotes(Data["Destination"])}",
-                    $"xcopy publish ${addQuotes(Data["Destination"])} /E /H /R /X /Y /I /K /C /O",
+                    $"move {Data["Destination"]}\\_app_offline.htm {Data["Destination"]}\\app_offline.htm",
+                    $"robocopy publish {addQuotes(Data["Destination"])} /S",
+                    $"move {Data["Destination"]}\\app_offline.htm {Data["Destination"]}\\_app_offline.htm",
                     "cd ../",
                     "timeout 1", // in case any process is using tempPublish
+                    "rmdir /s /q tempPublish",
+                    "timeout 3",
                     "rmdir /s /q tempPublish"
                 };
 
                 string publishFolderName = getPublishFolderName(Data["PublishConfiguration"]);
                 string destinationFolderName = getDestinationFolderName(Data["Destination"]);
 
-                execCmdCommands(commands);
+                execCmdCommands(commands, false);
                     
             }
             catch (Exception e)
@@ -148,14 +153,14 @@ namespace Anna
             }
         }
 
-        public static void execCmdCommands(string[] commands)
+        public static void execCmdCommands(string[] commands, Boolean waitForExit)
         {
             Process process = new Process();
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "cmd.exe";
             startInfo.RedirectStandardError = false;
             startInfo.RedirectStandardOutput = false;
-            startInfo.RedirectStandardInput = false;
+            startInfo.RedirectStandardInput = true;
             process.StartInfo = startInfo;
             process.Start();
             
@@ -165,13 +170,15 @@ namespace Anna
                 {
                     foreach (string command in commands)
                     {
-                        sw.WriteLine("/C " + command);
+                        sw.WriteLine(command);
                     }
                 }
             }
-            
-            string stdout_str = process.StandardOutput.ReadToEnd();
-            string stderr_str = process.StandardError.ReadToEnd();
+
+            if (waitForExit)
+                process.WaitForExit();
+            //string stdout_str = process.StandardOutput.ReadToEnd();
+            //string stderr_str = process.StandardError.ReadToEnd();
         }
 
         public static string Reverse(string s)
@@ -244,6 +251,30 @@ namespace Anna
             }
 
             return null;
+        }
+
+        public static string AnnaDeploy(string sql, object[] args)
+        {
+            string[] cloneCommands = 
+            {
+                "mkdir tempRedeploy",
+                "cd tempRedeploy",
+                "git clone git@github.com:ZiarnoM/AnnaBot.git .",
+                $"dotnet publish -o publish -c Release Anna",
+
+            };
+            
+            string[] commands = new string[]
+            {
+                
+                "taskkill/im Anna.exe /F",
+
+            };
+            
+            execCmdCommands(cloneCommands, true);
+            execCmdCommands(new string[]{"redeploy.bat"}, false);
+            execCmdCommands(commands, false);
+            return "Startuje deploy Anny";
         }
     }
 }
