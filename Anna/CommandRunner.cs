@@ -20,7 +20,6 @@ namespace Anna
                 {"Operation", (sql, args) => { return ExecSqlOperation(sql, args); }},
                 {"Deploy", (sql, args) => { return Deploy(sql, args); }},
                 {"AnnaDeploy", (sql, args) => { return AnnaDeploy(sql, args); }}
-
             };
 
         public static string DetectAndRunComamandFunction(Message msg)
@@ -59,6 +58,7 @@ namespace Anna
             {
                 resultList.Add(string.Join(" ", row.ItemArray));
             }
+
             return string.Join("\n", resultList);
         }
 
@@ -76,8 +76,8 @@ namespace Anna
                     {"Destination", result.ItemArray[3].ToString()},
                     {"PublishConfiguration", result.ItemArray[4].ToString()},
                 };
-                
-                string [] commands = new string[]
+
+                string[] commands = new string[]
                 {
                     "rmdir /s /q tempPublish",
                     "mkdir tempPublish",
@@ -102,11 +102,10 @@ namespace Anna
                 string destinationFolderName = getDestinationFolderName(Data["Destination"]);
 
                 execCmdCommands(commands, false);
-                    
             }
             catch (Exception e)
             {
-                object[] errorArgs = {IrcBot._config.nick,e.GetMergedErrors() , 1, 1};
+                object[] errorArgs = {IrcBot._config.nick, e.GetMergedErrors(), 1, 1};
                 object[] stackArgs = {IrcBot._config.nick, e.StackTrace, 1, 1};
                 SqlInsertSystemLog(errorArgs);
                 SqlInsertSystemLog(stackArgs);
@@ -125,11 +124,9 @@ namespace Anna
 
         public static void SqlInsertSystemLog(object[] args)
         {
-
             string sql = "INSERT INTO SystemLog (UserNick,Message,Event,Type) VALUES(@p0,@p1,@p2,@p3)";
 
-            Db.ExecNonQuerySql(sql,args);
-
+            Db.ExecNonQuerySql(sql, args);
         }
 
         public static string ExecSqlOperation(string sql, object[] args)
@@ -163,7 +160,7 @@ namespace Anna
             startInfo.RedirectStandardInput = true;
             process.StartInfo = startInfo;
             process.Start();
-            
+
             using (StreamWriter sw = process.StandardInput)
             {
                 if (sw.BaseStream.CanWrite)
@@ -253,27 +250,57 @@ namespace Anna
             return null;
         }
 
+        /* This method is created so Anna can deploy herself. (Update and restart)
+         * How it works:
+         * In this method we are using the fact that commands in cmd can be async or sync so we can make bot alive
+         * , even though we kill Anna.exe process.
+         * execCmdCommands method with waitForExit: true - not async
+         * execCmdCommands method with waitForExit: false - async
+         *
+         * 1 (not async, because we have to make sure that project is updated before it's restarted):
+         * - create tempRedeploy directory (if it doesn't exist)
+         * - update repo (clone, pull)
+         * - dotnet publish
+         *
+         * 2 (async):
+         * - run redeploy.bat script:
+         *      * copy updated version to main folder
+         *      * run Anna.exe
+         *
+         * 3 (async):
+         * - kill previous Anna.exe process
+         *
+         * As 2, 3 are executed async they are running in the same time so:
+         *  - we try to copy and overwrite old version with new version (2), but at first we can't
+         *    since .dll files are used in Anna.exe process. Robocopy will try to overwrite files again in 30s
+         *  - kill Anna.exe process (3), but whole app WON'T shutdown
+         *    because robocopy is still trying to overwrite files (2)
+         *  - robocopy retries again to overwrite files (2) and it ends with success because Anna.exe process is killed
+         *    and .dll files are no longer used. App still won't shutdown because redeploy.bat file is not fully executed
+         *  - run Anna.exe (2) from redeploy.bat script
+         *
+         *
+         *  tl;dr: redeploy.bat, robocopy retry function keeps program alive even when Anna.exe process is killed
+         * 
+         */
         public static string AnnaDeploy(string sql, object[] args)
         {
-            string[] cloneCommands = 
+            string[] cloneCommands =
             {
                 "mkdir tempRedeploy",
                 "cd tempRedeploy",
                 $"git clone {IrcBot._config.redeployRepoLocation} .",
                 "git pull origin main",
                 "dotnet publish -o publish -c Release Anna",
-
             };
-            
-            string[] commands = new string[]
+
+            string[] commands =
             {
-                
                 "taskkill/im Anna.exe /F",
-
             };
-            
+
             execCmdCommands(cloneCommands, true);
-            execCmdCommands(new string[]{"redeploy.bat"}, false);
+            execCmdCommands(new string[] {"redeploy.bat"}, false);
             execCmdCommands(commands, false);
             return "Startuje deploy Anny";
         }
