@@ -1,14 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 using System.Linq;
-using System.Net;
-using System.Text;
-using Anna;
-using System.Xml;
-using System.Xml.Schema;
 
 namespace Anna
 {
@@ -36,6 +30,8 @@ namespace Anna
         {
             message = message[1..];
             Console.WriteLine("message: " + message);
+            //convert args from message like: (!deploy arg1 "arg 2" arg3)
+            //into string array ["arg1","arg 2","arg3"]
             List<string> data = new List<string>();
             bool inargp = false;
             bool inquotep = false;
@@ -89,7 +85,8 @@ namespace Anna
             {
                 data.Add(hold);
             }
-
+            
+            //not used
             Boolean isFlag;
             if (data.Count > 1)
             {
@@ -100,6 +97,7 @@ namespace Anna
                 isFlag = false;
             }
 
+            //create message object
             Message messageContent = new Message
                 {command = data[0], parameters = data.Skip(1).ToArray(), sender = sender, isFlag = isFlag};
             return messageContent;
@@ -107,6 +105,8 @@ namespace Anna
 
         public void sendMessage(StreamWriter writer, string receiver, string message)
         {
+            //send message to receiver at irc server based on message
+            //if message contains \n split it to several lines
             string[] messages = message.Split("\n");
             foreach (string mess in messages)
             {
@@ -114,42 +114,43 @@ namespace Anna
                 CommandRunner.SqlInsertLog(args);
                 writer.WriteLine($"PRIVMSG {receiver} :{mess}"); 
             }
-                
-            
-            
+               
         }
 
         public void Run()
         {
             using (var client = new TcpClient())
             {
+                //connect
                 Console.WriteLine($"Connecting to {_config.server}");
                 client.Connect(_config.server, 6667);
                 Console.WriteLine($"Connected: {client.Connected}");
 
                 //log bot initiation
                 object[] upTimeArgs = {_config.nick, "!BOTSTARTED!", 0, 0};
-
                 CommandRunner.SqlInsertSystemLog(upTimeArgs);
 
                 using (var stream = client.GetStream())
                 using (var writer = new StreamWriter(stream))
                 using (var reader = new StreamReader(stream))
                 {
+                    //login at server
                     writer.WriteLine($"USER {_config.id} {_config.id} {_config.id} :{_config.id}");
                     writer.WriteLine($"NICK {_config.nick}");
                     // identify with the server so your bot can be an op on the channel
                     writer.WriteLine($"PRIVMSG NickServ :IDENTIFY {_config.nick}");
                     writer.Flush();
-
+                    
                     while (client.Connected)
                     {
+                        //read data
                         var data = reader.ReadLine();
-
+                        
                         if (data != null)
                         {
                             var d = data.Split(' ');
                             Console.WriteLine($"Data: {data}");
+                            //ping method to prevent afk kick 
                             if (d[0] == "PING")
                             {
                                 string message = data.Split(":")[1];
@@ -177,6 +178,7 @@ namespace Anna
 
                                         break;
                                     }
+                                    //if someone send private message
                                     case "PRIVMSG":
                                     {
                                         if (d.Length > 2)
@@ -203,6 +205,7 @@ namespace Anna
 
                                                 if (message[0] == '!')
                                                 {
+                                                    //send message based on detected comend return 
                                                     sendMessage(writer, d[2],
                                                         CommandRunner.DetectAndRunComamandFunction(checkMessage(sender,
                                                             message)));
