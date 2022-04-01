@@ -8,6 +8,7 @@
     string channLog = String.Empty;
     string datLog = String.Empty;
     var config = ConfigModel.DeserializeData("config.json");
+    string DateForLink = @Model.Last;
 }
 <button class="ButtonScroll"onclick="Scrolling()">Do najnowszych</button>
 <h2 class="test">@Model.channelName</h2>
@@ -83,6 +84,11 @@
 </div>
 <button class="ButtonScroll"onclick="ScrollingUp()">Do najstarszych</button>
 <script>
+    let channelName = "@Model.channelName"
+    channelName = channelName.replace("#",'')
+     let ChannLink = "https://localhost:44301/ALogs/ViewLog/All?channLog=%23"+channelName
+     let DateLink = "&datLog="+"@Model.Last"
+     let link = ChannLink+DateLink
      document.addEventListener('keyup', (event) => {
     var name = event.key;
     if (name === 'ArrowLeft') {
@@ -102,7 +108,7 @@
     }
     function Show(clickedId) {
         let search = '0'+clickedId
-        let x = 'ViewLog#'+clickedId
+        let x = link+'#'+clickedId
         let s = document.getElementById(search)
         if(s.classList.contains('JDclicked')){
             s.classList.remove('JDclicked')
@@ -110,5 +116,6 @@
         else{
             s.classList.add('JDclicked')
         }
+        window.location.href = x
     }
 </script>

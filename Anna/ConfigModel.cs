@@ -16,6 +16,8 @@ namespace Anna
         public string[] commands { get; set; }
         
         public string connectionString { get; set; }
+        
+        public string redeployRepoLocation { get; set; }
 
         public static ConfigModel DeserializeData(string path)
         {

@@ -10,7 +10,6 @@ namespace Anna
 {
     public class Scheduler
     {
-
         public static Dictionary<string, Func<string, object[], string>> Commands =
             new Dictionary<string, Func<string, object[], string>>()
             {
@@ -59,7 +58,6 @@ namespace Anna
                                 item["pubDate"]?.InnerText
                             });
                         }
-
                     }
                 }
             }
@@ -69,60 +67,48 @@ namespace Anna
 
         public static void checkScheduler()
         {
-
-
             Thread aoe = new Thread(new ThreadStart(() =>
             {
                 while (true)
                 {
-                    //sleep for 5 min
-                    Thread.Sleep(300000);
-                    //get list of every scheduler where next start date is smalles than now
-                    DataRowCollection schedulerTasksToRun = Db.ExecSqlCollection(
-                        "select SchedulerId from ReportsScheduler where ActiveP = 1 and NextStart < GETDATE()",
-                        new object[] { });
-                    foreach (DataRow schedulerTaskRow in schedulerTasksToRun)
+                    try
                     {
-                        //foreach item in list get sql and send method
-                        DataRowCollection schedulerTasksSql = Db.ExecSqlCollection(
-                            "select SQl,SendMethod from Scheduler where Id = @p0",
-                            new object[] {schedulerTaskRow.ItemArray[0]});
-                        foreach (DataRow schedulerRow in schedulerTasksSql)
+                        //sleep for 5 min
+                        Thread.Sleep(300000);
+                        //get list of every scheduler where next start date is smalles than now
+                        DataRowCollection schedulerTasksToRun = Db.ExecSqlCollection(
+                            "select SchedulerId from ReportsScheduler where ActiveP = 1 and NextStart < GETDATE()",
+                            new object[] { });
+                        foreach (DataRow schedulerTaskRow in schedulerTasksToRun)
                         {
-                            //pass args to disctionary present on top
-                            string action = schedulerRow.ItemArray[1].ToString();
-                            string sqlCmd = schedulerRow.ItemArray[0].ToString();
-                            Commands[action](sqlCmd, new object[] { });
+                            //foreach item in list get sql and send method
+                            DataRowCollection schedulerTasksSql = Db.ExecSqlCollection(
+                                "select SQl,SendMethod from Scheduler where Id = @p0",
+                                new object[] {schedulerTaskRow.ItemArray[0]});
+                            foreach (DataRow schedulerRow in schedulerTasksSql)
+                            {
+                                //pass args to disctionary present on top
+                                string action = schedulerRow.ItemArray[1].ToString();
+                                string sqlCmd = schedulerRow.ItemArray[0].ToString();
+                                Commands[action](sqlCmd, new object[] { });
+                            }
                         }
-
+                        //update next start date
+                        Db.ExecNonQuerySql(
+                            "update rs set NextSTart = dbo.GetNextStart(rs.DateStart, rs.IntervalType, rs.Interval) from ReportsScheduler rs where rs.NextStart < GETDATE()",
+                            new string[] { });
                     }
-                    //update next start date
-                    Db.ExecNonQuerySql("update rs set NextSTart = dbo.GetNextStart(rs.DateStart, rs.IntervalType, rs.Interval) from ReportsScheduler rs where rs.NextStart < GETDATE()",new string[]{});
-
+                    catch (Exception e)
+                    {
+                        object[] errorArgs = {IrcBot._config.nick,e.GetMergedErrors() , 1, 1};
+                        object[] stackArgs = {IrcBot._config.nick, e.StackTrace, 1, 1};
+                        CommandRunner.SqlInsertSystemLog(errorArgs);
+                        CommandRunner.SqlInsertSystemLog(stackArgs);
+                    }
 
                 }
-
             }));
-
             aoe.Start();
         }
-
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
