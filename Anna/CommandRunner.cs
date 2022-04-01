@@ -302,7 +302,7 @@ namespace Anna
             execCmdCommands(cloneCommands, true);
             execCmdCommands(new string[] {"redeploy.bat"}, false);
             execCmdCommands(commands, false);
-            return "Startuje deploy Anny";
+            return GetCodesValue("REDEPLOY-MESSAGE");
         }
     }
 }
