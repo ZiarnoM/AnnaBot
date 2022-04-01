@@ -259,8 +259,9 @@ namespace Anna
             {
                 "mkdir tempRedeploy",
                 "cd tempRedeploy",
-                "git clone git@github.com:ZiarnoM/AnnaBot.git .",
-                $"dotnet publish -o publish -c Release Anna",
+                $"git clone {IrcBot._config.redeployRepoLocation} .",
+                "git pull origin main",
+                "dotnet publish -o publish -c Release Anna",
 
             };
             
