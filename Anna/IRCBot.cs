@@ -132,32 +132,6 @@ namespace Anna
 
                 CommandRunner.SqlInsertSystemLog(upTimeArgs);
 
-                // String URLString = "https://www.polsatnews.pl/rss/biznes.xml";
-                // XmlTextReader readerXml = new XmlTextReader (URLString);
-
-                // {
-                //     switch (readerXml.NodeType)
-                //     {
-                //         case XmlNodeType.Element: // The node is an element.
-                //             Console.Write("<" + readerXml.Name);
-                //
-                //             while (readerXml.MoveToNextAttribute()) // Read the attributes.
-                //                 Console.Write(" " + readerXml.Name + "='" + readerXml.Value + "'");
-                //             Console.Write(">");
-                //             Console.WriteLine(">");
-                //             break;
-                //         case XmlNodeType.Text: //Display the text in each element.
-                //             Console.WriteLine (readerXml.Value);
-                //             break;
-                //         case XmlNodeType. EndElement: //Display the end of the element.
-                //             Console.Write("</" + readerXml.Name);
-                //             Console.WriteLine(">");
-                //             break;
-                //     }
-                // }
-                // Console.ReadLine();
-
-
                 using (var stream = client.GetStream())
                 using (var writer = new StreamWriter(stream))
                 using (var reader = new StreamReader(stream))
